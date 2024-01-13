@@ -40,5 +40,24 @@ CREATE TABLE `app_user`  (
     PRIMARY KEY (`user_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
+-- ----------------------------
+-- Table structure for im_friendship
+-- ----------------------------
+DROP TABLE IF EXISTS `im_friendship`;
+CREATE TABLE `im_friendship`  (
+    `app_id` int(20) NOT NULL COMMENT 'app_id',
+    `from_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'from_id',
+    `to_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'to_id',
+    `remark` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'remark',
+    `status` int(10) NULL DEFAULT NULL COMMENT 'Status: 1=Normal; 2=Delete',
+    `black` int(10) NULL DEFAULT NULL COMMENT '1=Normal; 2=Blocked',
+    `create_time` bigint(20) NULL DEFAULT NULL,
+    `friend_sequence` bigint(20) NULL DEFAULT NULL,
+    `black_sequence` bigint(20) NULL DEFAULT NULL,
+    `add_source` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'source',
+    `extra` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'extra info',
+    PRIMARY KEY (`app_id`, `from_id`, `to_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
 
 SET FOREIGN_KEY_CHECKS = 1;
