@@ -34,4 +34,16 @@ public class ImFriendShipController {
         return imFriendShipService.updateFriend(req);
     }
 
+    @RequestMapping("/deleteFriend")
+    public ResponseVO deleteFriend(@RequestBody @Validated DeleteFriendReq req, Integer appId){
+        req.setAppId(appId);
+        return imFriendShipService.deleteFriend(req);
+    }
+
+    @RequestMapping("/deleteAllFriend")
+    public ResponseVO deleteAllFriend(@RequestBody @Validated DeleteFriendReq req, Integer appId){
+        req.setAppId(appId);
+        return imFriendShipService.deleteAllFriend(req);
+    }
+
 }

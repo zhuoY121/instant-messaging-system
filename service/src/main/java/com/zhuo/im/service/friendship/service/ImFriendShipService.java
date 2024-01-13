@@ -15,4 +15,8 @@ public interface ImFriendShipService {
 
     public ResponseVO updateFriend(UpdateFriendReq req);
 
+    public ResponseVO deleteFriend(DeleteFriendReq req);
+
+    public ResponseVO deleteAllFriend(DeleteFriendReq req);
+
 }

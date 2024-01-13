@@ -104,6 +104,44 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
         return this.doUpdateFriend(req.getFromId(), req.getToItem(), req.getAppId());
     }
 
+    @Override
+    public ResponseVO deleteFriend(DeleteFriendReq req) {
+
+        QueryWrapper<ImFriendShipEntity> query = new QueryWrapper<>();
+        query.eq("app_id", req.getAppId());
+        query.eq("from_id", req.getFromId());
+        query.eq("to_id", req.getToId());
+        ImFriendShipEntity fromItem = imFriendShipMapper.selectOne(query);
+
+        if (fromItem == null) {
+            return ResponseVO.errorResponse(FriendShipErrorCode.TO_IS_NOT_YOUR_FRIEND);
+        } else {
+            if (fromItem.getStatus() == FriendShipStatusEnum.FRIEND_STATUS_NORMAL.getCode()) {
+                ImFriendShipEntity update = new ImFriendShipEntity();
+                update.setStatus(FriendShipStatusEnum.FRIEND_STATUS_DELETE.getCode());
+                imFriendShipMapper.update(update, query);
+            } else {
+                return ResponseVO.errorResponse(FriendShipErrorCode.FRIEND_IS_DELETED);
+            }
+        }
+
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO deleteAllFriend(DeleteFriendReq req) {
+
+        QueryWrapper<ImFriendShipEntity> query = new QueryWrapper<>();
+        query.eq("app_id", req.getAppId());
+        query.eq("from_id", req.getFromId());
+        query.eq("status", FriendShipStatusEnum.FRIEND_STATUS_NORMAL.getCode());
+
+        ImFriendShipEntity update = new ImFriendShipEntity();
+        update.setStatus(FriendShipStatusEnum.FRIEND_STATUS_DELETE.getCode());
+        imFriendShipMapper.update(update, query);
+        return ResponseVO.successResponse();
+    }
+
     @Transactional
     public ResponseVO doUpdateFriend(String fromId, FriendDto dto, Integer appId) {
 
