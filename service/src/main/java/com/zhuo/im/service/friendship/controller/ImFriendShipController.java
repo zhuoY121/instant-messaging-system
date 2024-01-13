@@ -41,9 +41,21 @@ public class ImFriendShipController {
     }
 
     @RequestMapping("/deleteAllFriend")
-    public ResponseVO deleteAllFriend(@RequestBody @Validated DeleteFriendReq req, Integer appId){
+    public ResponseVO deleteAllFriend(@RequestBody @Validated DeleteAllFriendReq req, Integer appId){
         req.setAppId(appId);
         return imFriendShipService.deleteAllFriend(req);
+    }
+
+    @RequestMapping("/getFriendship")
+    public ResponseVO getFriend(@RequestBody @Validated GetFriendshipReq req, Integer appId){
+        req.setAppId(appId);
+        return imFriendShipService.getFriendship(req);
+    }
+
+    @RequestMapping("/getAllFriendship")
+    public ResponseVO getAllFriend(@RequestBody @Validated GetAllFriendshipReq req, Integer appId){
+        req.setAppId(appId);
+        return imFriendShipService.getAllFriendship(req);
     }
 
 }

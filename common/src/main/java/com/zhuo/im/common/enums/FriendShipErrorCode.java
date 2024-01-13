@@ -19,7 +19,7 @@ public enum FriendShipErrorCode implements ApplicationExceptionEnum {
 
     TARGET_IS_BLACK_YOU(30007,"The other party blocked you"),
 
-    REPEATSHIP_IS_NOT_EXIST(30008,"The relationship chain record does not exist"),
+    RELATIONSHIP_IS_NOT_EXIST(30008,"The relationship chain record does not exist"),
 
     ADD_BLACK_ERROR(30009,"Failed to add blacklist"),
 

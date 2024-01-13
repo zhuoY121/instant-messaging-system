@@ -17,6 +17,10 @@ public interface ImFriendShipService {
 
     public ResponseVO deleteFriend(DeleteFriendReq req);
 
-    public ResponseVO deleteAllFriend(DeleteFriendReq req);
+    public ResponseVO deleteAllFriend(DeleteAllFriendReq req);
+
+    public ResponseVO getFriendship(GetFriendshipReq req);
+
+    public ResponseVO getAllFriendship(GetAllFriendshipReq req);
 
 }

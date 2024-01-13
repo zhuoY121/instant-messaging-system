@@ -129,7 +129,7 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
     }
 
     @Override
-    public ResponseVO deleteAllFriend(DeleteFriendReq req) {
+    public ResponseVO deleteAllFriend(DeleteAllFriendReq req) {
 
         QueryWrapper<ImFriendShipEntity> query = new QueryWrapper<>();
         query.eq("app_id", req.getAppId());
@@ -140,6 +140,31 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
         update.setStatus(FriendShipStatusEnum.FRIEND_STATUS_DELETE.getCode());
         imFriendShipMapper.update(update, query);
         return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO getFriendship(GetFriendshipReq req) {
+
+        QueryWrapper<ImFriendShipEntity> query = new QueryWrapper<>();
+        query.eq("app_id", req.getAppId());
+        query.eq("from_id", req.getFromId());
+        query.eq("to_id", req.getToId());
+
+        ImFriendShipEntity entity = imFriendShipMapper.selectOne(query);
+        if (entity == null) {
+            return ResponseVO.errorResponse(FriendShipErrorCode.RELATIONSHIP_IS_NOT_EXIST);
+        }
+
+        return ResponseVO.successResponse(entity);
+    }
+
+    @Override
+    public ResponseVO getAllFriendship(GetAllFriendshipReq req) {
+
+        QueryWrapper<ImFriendShipEntity> query = new QueryWrapper<>();
+        query.eq("app_id", req.getAppId());
+        query.eq("from_id", req.getFromId());
+        return ResponseVO.successResponse(imFriendShipMapper.selectList(query));
     }
 
     @Transactional
