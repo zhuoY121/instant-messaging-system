@@ -13,6 +13,6 @@ public class UpdateFriendshipReq extends RequestBase {
     private String fromId;
 
     @NotNull(message = "toItem cannot be empty")
-    private FriendDto toItem;
+    private FriendshipDto toItem;
     
 }

@@ -168,7 +168,7 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
     }
 
     @Transactional
-    public ResponseVO doUpdateFriendship(String fromId, FriendDto dto, Integer appId) {
+    public ResponseVO doUpdateFriendship(String fromId, FriendshipDto dto, Integer appId) {
 
         UpdateWrapper<ImFriendshipEntity> updateWrapper = new UpdateWrapper<>();
         updateWrapper.lambda().set(ImFriendshipEntity::getAddSource, dto.getAddSource())
@@ -186,7 +186,7 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
     }
 
     @Transactional
-    public ResponseVO doAddFriendship(String fromId, FriendDto dto, Integer appId) {
+    public ResponseVO doAddFriendship(String fromId, FriendshipDto dto, Integer appId) {
 
         // A-B
         // Insert two records A and B into the Friends table

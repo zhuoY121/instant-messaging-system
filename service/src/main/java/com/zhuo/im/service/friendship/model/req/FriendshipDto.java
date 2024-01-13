@@ -4,7 +4,7 @@ import lombok.Data;
 
 
 @Data
-public class FriendDto {
+public class FriendshipDto {
 
     private String toId;
 
