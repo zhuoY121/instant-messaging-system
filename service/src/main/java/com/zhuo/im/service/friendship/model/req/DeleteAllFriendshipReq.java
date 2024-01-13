@@ -4,16 +4,11 @@ import com.zhuo.im.common.model.RequestBase;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
 
 @Data
-public class AddFriendReq extends RequestBase {
+public class DeleteAllFriendshipReq extends RequestBase {
 
     @NotBlank(message = "fromId cannot be empty")
     private String fromId;
-
-    @NotNull(message = "toItem cannot be empty")
-    private FriendDto toItem;
 
 }

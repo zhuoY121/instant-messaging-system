@@ -2,7 +2,7 @@ package com.zhuo.im.common.enums;
 
 import com.zhuo.im.common.exception.ApplicationExceptionEnum;
 
-public enum FriendShipErrorCode implements ApplicationExceptionEnum {
+public enum FriendshipErrorCode implements ApplicationExceptionEnum {
 
 
     IMPORT_SIZE_BEYOND(30000,"The number of imports exceeds the upper limit"),
@@ -42,7 +42,7 @@ public enum FriendShipErrorCode implements ApplicationExceptionEnum {
     private int code;
     private String error;
 
-    FriendShipErrorCode(int code, String error){
+    FriendshipErrorCode(int code, String error){
         this.code = code;
         this.error = error;
     }

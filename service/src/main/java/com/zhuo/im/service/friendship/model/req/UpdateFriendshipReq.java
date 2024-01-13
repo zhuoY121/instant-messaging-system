@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class UpdateFriendReq extends RequestBase {
+public class UpdateFriendshipReq extends RequestBase {
 
     @NotBlank(message = "fromId cannot be empty")
     private String fromId;

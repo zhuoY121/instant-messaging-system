@@ -1,6 +1,6 @@
 package com.zhuo.im.common.enums;
 
-public enum FriendShipStatusEnum {
+public enum FriendshipStatusEnum {
 
     /**
      * 0=not added; 1=normal; 2=deleted
@@ -21,7 +21,7 @@ public enum FriendShipStatusEnum {
 
     private int code;
 
-    FriendShipStatusEnum(int code){
+    FriendshipStatusEnum(int code){
         this.code=code;
     }
 

@@ -1,6 +1,6 @@
 package com.zhuo.im.service.friendship.model.req;
 
-import com.zhuo.im.common.enums.FriendShipStatusEnum;
+import com.zhuo.im.common.enums.FriendshipStatusEnum;
 import com.zhuo.im.common.model.RequestBase;
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import java.util.List;
 
 
 @Data
-public class ImportFriendShipReq extends RequestBase {
+public class ImportFriendshipReq extends RequestBase {
 
     @NotBlank(message = "fromId cannot be empty")
     private String fromId;
@@ -26,10 +26,10 @@ public class ImportFriendShipReq extends RequestBase {
 
         private String addSource;
 
-        private Integer status = FriendShipStatusEnum.FRIEND_STATUS_NOT_FRIEND.getCode();
+        private Integer status = FriendshipStatusEnum.FRIEND_STATUS_NOT_FRIEND.getCode();
 
         // block status
-        private Integer black = FriendShipStatusEnum.BLACK_STATUS_NORMAL.getCode();
+        private Integer black = FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode();
     }
 
 }

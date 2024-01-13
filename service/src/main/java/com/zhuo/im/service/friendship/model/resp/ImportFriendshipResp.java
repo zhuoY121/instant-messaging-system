@@ -6,7 +6,7 @@ import java.util.List;
 
 
 @Data
-public class ImportFriendShipResp {
+public class ImportFriendshipResp {
 
     private List<String> successId;
 

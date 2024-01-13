@@ -3,7 +3,7 @@ package com.zhuo.im.common.enums;
 public enum DelFlagEnum {
 
     /**
-     * 0 normal；1 delete。
+     * 0 normal；1 delete.
      */
     NORMAL(0),
 
