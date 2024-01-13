@@ -1,0 +1,45 @@
+spring:
+  profiles:
+    active: dev
+
+# TODO: Configure the spring:datasource in the application-dev.yml file OR below
+#spring:
+#  profiles:
+#    active: dev
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    username: <username>
+#    password: <password>
+#    url: jdbc:mysql://localhost:8889/im-core?serverTimezone=UTC&useSSL=false&characterEncoding=UTF8
+
+
+  application:
+    name: im-core
+
+# logger configuration
+logging:
+  config: classpath:logback-spring.xml
+
+server:
+  port: 8000
+
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:mapper/*.xml
+  global-config:
+    db-config:
+      update-strategy: NOT_EMPTY
+
+#mybatis:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+httpclient:
+  maxTotal: 100
+  defaultMaxPerRoute: 50
+  connectTimeout: 2000
+  connectionRequestTimeout: 2000
+  socketTimeout: 5000
+  staleConnectionCheckEnabled: true
