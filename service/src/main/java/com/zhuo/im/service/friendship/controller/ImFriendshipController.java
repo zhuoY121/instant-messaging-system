@@ -64,4 +64,21 @@ public class ImFriendshipController {
         return imFriendshipService.checkFriendship(req);
     }
 
+    @RequestMapping("/addBlack")
+    public ResponseVO addBlack(@RequestBody @Validated AddFriendshipBlackReq req, Integer appId){
+        req.setAppId(appId);
+        return imFriendshipService.addBlack(req);
+    }
+
+    @RequestMapping("/deleteBlack")
+    public ResponseVO deleteBlack(@RequestBody @Validated DeleteBlackReq req, Integer appId){
+        req.setAppId(appId);
+        return imFriendshipService.deleteBlack(req);
+    }
+
+    @RequestMapping("/checkBlack")
+    public ResponseVO checkBlack(@RequestBody @Validated CheckFriendshipReq req, Integer appId){
+        req.setAppId(appId);
+        return imFriendshipService.checkBlack(req);
+    }
 }

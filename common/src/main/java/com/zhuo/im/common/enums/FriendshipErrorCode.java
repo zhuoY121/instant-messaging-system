@@ -23,7 +23,7 @@ public enum FriendshipErrorCode implements ApplicationExceptionEnum {
 
     ADD_BLACK_ERROR(30009,"Failed to add blacklist"),
 
-    FRIEND_IS_NOT_YOUR_BLACK(30010,"The friend is no longer in your blacklist"),
+    FRIEND_IS_NOT_BLACK(30010,"The friend is not in your blacklist"),
 
     NOT_APPROVED_OTHER_MAN_REQUEST(30011,"Unable to approve other people's friend requests"),
 

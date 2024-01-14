@@ -25,4 +25,9 @@ public interface ImFriendshipService {
 
     public ResponseVO checkFriendship(CheckFriendshipReq req);
 
+    public ResponseVO addBlack(AddFriendshipBlackReq req);
+
+    public ResponseVO deleteBlack(DeleteBlackReq req);
+
+    public ResponseVO checkBlack(CheckFriendshipReq req);
 }

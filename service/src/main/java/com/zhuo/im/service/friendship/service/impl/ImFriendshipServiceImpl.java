@@ -123,7 +123,7 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
         } else {
             if (fromItem.getStatus() == FriendshipStatusEnum.FRIEND_STATUS_NORMAL.getCode()) {
                 ImFriendshipEntity update = new ImFriendshipEntity();
-                update.setStatus(FriendshipStatusEnum.FRIEND_STATUS_DELETE.getCode());
+                update.setStatus(FriendshipStatusEnum.FRIEND_STATUS_DELETED.getCode());
                 imFriendshipMapper.update(update, query);
             } else {
                 return ResponseVO.errorResponse(FriendshipErrorCode.FRIEND_IS_DELETED);
@@ -142,7 +142,7 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
         query.eq("status", FriendshipStatusEnum.FRIEND_STATUS_NORMAL.getCode());
 
         ImFriendshipEntity update = new ImFriendshipEntity();
-        update.setStatus(FriendshipStatusEnum.FRIEND_STATUS_DELETE.getCode());
+        update.setStatus(FriendshipStatusEnum.FRIEND_STATUS_DELETED.getCode());
         imFriendshipMapper.update(update, query);
         return ResponseVO.successResponse();
     }
@@ -202,6 +202,114 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
         }
 
         return ResponseVO.successResponse(resp);
+    }
+
+    @Override
+    public ResponseVO addBlack(AddFriendshipBlackReq req) {
+
+        ResponseVO<ImUserDataEntity> fromInfo = imUserService.getSingleUserInfo(req.getFromId(), req.getAppId());
+        if (!fromInfo.isOk()) {
+            return fromInfo;
+        }
+
+        ResponseVO<ImUserDataEntity> toInfo = imUserService.getSingleUserInfo(req.getToId(), req.getAppId());
+        if (!toInfo.isOk()) {
+            return toInfo;
+        }
+
+        QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
+        query.eq("app_id",req.getAppId());
+        query.eq("from_id",req.getFromId());
+        query.eq("to_id",req.getToId());
+
+        ImFriendshipEntity fromItem = imFriendshipMapper.selectOne(query);
+        if (fromItem == null){
+            // add friends
+            fromItem = new ImFriendshipEntity();
+            fromItem.setFromId(req.getFromId());
+            fromItem.setToId(req.getToId());
+            fromItem.setAppId(req.getAppId());
+            fromItem.setBlack(FriendshipStatusEnum.BLACK_STATUS_BLACKED.getCode());
+            fromItem.setCreateTime(System.currentTimeMillis());
+            int insert = imFriendshipMapper.insert(fromItem);
+            if (insert != 1){
+                return ResponseVO.errorResponse(FriendshipErrorCode.ADD_BLACK_ERROR);
+            }
+
+        } else{
+            // If it exists, determine the status. If it is blocked, it will prompt that it has been blocked. If it is not blocked, modify the status.
+            if (fromItem.getBlack() != null && fromItem.getBlack() == FriendshipStatusEnum.BLACK_STATUS_BLACKED.getCode()){
+                return ResponseVO.errorResponse(FriendshipErrorCode.FRIEND_IS_BLACK);
+            } else {
+                ImFriendshipEntity update = new ImFriendshipEntity();
+                update.setBlack(FriendshipStatusEnum.BLACK_STATUS_BLACKED.getCode());
+                int result = imFriendshipMapper.update(update, query);
+                if(result != 1){
+                    return ResponseVO.errorResponse(FriendshipErrorCode.ADD_BLACK_ERROR);
+                }
+            }
+        }
+
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO deleteBlack(DeleteBlackReq req) {
+
+        QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
+        query.eq("app_id", req.getAppId());
+        query.eq("from_id", req.getFromId());
+        query.eq("to_id", req.getToId());
+        ImFriendshipEntity fromItem = imFriendshipMapper.selectOne(query);
+
+        if (fromItem == null) {
+            return ResponseVO.errorResponse(FriendshipErrorCode.TO_IS_NOT_YOUR_FRIEND);
+        } else {
+            if (fromItem.getBlack() != null && fromItem.getBlack() == FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode()) {
+                return ResponseVO.errorResponse(FriendshipErrorCode.FRIEND_IS_NOT_BLACK);
+            } else {
+                ImFriendshipEntity update = new ImFriendshipEntity();
+                update.setBlack(FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode());
+                int update1 = imFriendshipMapper.update(update, query);
+                if(update1 == 1){
+                    return ResponseVO.successResponse();
+                }
+            }
+        }
+
+        return ResponseVO.errorResponse();
+    }
+
+    @Override
+    public ResponseVO checkBlack(CheckFriendshipReq req) {
+
+        Map<String, Integer> toIdMap
+                = req.getToIds().stream().collect(Collectors
+                .toMap(Function.identity(), s -> 0));
+
+        List<CheckFriendshipResp> result;
+        if (req.getCheckType() == CheckFriendshipTypeEnum.SINGLE.getType()) {
+            result = imFriendshipMapper.checkFriendshipBlack(req);
+        } else {
+            result = imFriendshipMapper.checkFriendshipBlackBoth(req);
+        }
+
+        Map<String, Integer> collect = result.stream()
+                .collect(Collectors
+                        .toMap(CheckFriendshipResp::getToId,
+                                CheckFriendshipResp::getStatus));
+        for (String toId:
+                toIdMap.keySet()) {
+            if(!collect.containsKey(toId)){
+                CheckFriendshipResp checkFriendShipResp = new CheckFriendshipResp();
+                checkFriendShipResp.setToId(toId);
+                checkFriendShipResp.setFromId(req.getFromId());
+                checkFriendShipResp.setStatus(toIdMap.get(toId));
+                result.add(checkFriendShipResp);
+            }
+        }
+
+        return ResponseVO.successResponse(result);
     }
 
     @Transactional

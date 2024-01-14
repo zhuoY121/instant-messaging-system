@@ -9,10 +9,10 @@ public enum FriendshipStatusEnum {
 
     FRIEND_STATUS_NORMAL(1),
 
-    FRIEND_STATUS_DELETE(2),
+    FRIEND_STATUS_DELETED(2),
 
     /**
-     * 0=not added; 1=normal; 2=deleted
+     * 0=not added; 1=normal; 2=blocked
      */
     BLACK_STATUS_NORMAL(1),
 
