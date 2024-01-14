@@ -63,7 +63,7 @@ public class ImFriendshipRequestServiceImpl implements ImFriendshipRequestServic
             imFriendshipRequestMapper.updateById(request);
         }
 
-        return null;
+        return ResponseVO.successResponse();
     }
 
     @Override
