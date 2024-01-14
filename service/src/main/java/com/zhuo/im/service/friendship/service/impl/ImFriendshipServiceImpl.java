@@ -230,6 +230,7 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
         // Check whether there are records. If it exists, determine the status.
         // If it has been added, it will prompt that it has been added; if it has not been added, modify the status.
 
+        // Add A->B
         QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
         query.eq("app_id", appId);
         query.eq("from_id", fromId);
@@ -275,6 +276,31 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
                 if(result != 1){
                     return ResponseVO.errorResponse(FriendshipErrorCode.ADD_FRIEND_ERROR);
                 }
+            }
+        }
+
+        // Add B->A
+        QueryWrapper<ImFriendshipEntity> toQuery = new QueryWrapper<>();
+        toQuery.eq("app_id",appId);
+        toQuery.eq("from_id",dto.getToId());
+        toQuery.eq("to_id",fromId);
+        ImFriendshipEntity toItem = imFriendshipMapper.selectOne(toQuery);
+        if(toItem == null){
+            toItem = new ImFriendshipEntity();
+            toItem.setAppId(appId);
+            toItem.setFromId(dto.getToId());
+            BeanUtils.copyProperties(dto, toItem);
+            toItem.setToId(fromId);
+            toItem.setStatus(FriendshipStatusEnum.FRIEND_STATUS_NORMAL.getCode());
+            toItem.setCreateTime(System.currentTimeMillis());
+            // toItem.setBlack(FriendShipStatusEnum.BLACK_STATUS_NORMAL.getCode());
+            int insert = imFriendshipMapper.insert(toItem);
+        }else{
+            if(FriendshipStatusEnum.FRIEND_STATUS_NORMAL.getCode() !=
+                    toItem.getStatus()){
+                ImFriendshipEntity update = new ImFriendshipEntity();
+                update.setStatus(FriendshipStatusEnum.FRIEND_STATUS_NORMAL.getCode());
+                imFriendshipMapper.update(update,toQuery);
             }
         }
 
