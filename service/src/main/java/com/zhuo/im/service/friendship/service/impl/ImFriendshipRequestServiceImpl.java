@@ -37,6 +37,7 @@ public class ImFriendshipRequestServiceImpl implements ImFriendshipRequestServic
         queryWrapper.eq("to_id", dto.getToId());
         ImFriendshipRequestEntity request = imFriendshipRequestMapper.selectOne(queryWrapper);
         if (request == null) {
+            request = new ImFriendshipRequestEntity();
             request.setAddSource(dto.getAddSource());
             request.setAddMessage(dto.getAddMessage());
             request.setAppId(appId);

@@ -25,7 +25,7 @@ public class ImFriendshipRequestController {
         return imFriendshipRequestService.approveFriendRequest(req);
     }
 
-    @RequestMapping("/readFriendshipRequestReq")
+    @RequestMapping("/readFriendshipRequest")
     public ResponseVO readFriendshipRequestReq(@RequestBody @Validated ReadFriendshipRequestReq req, Integer appId){
         req.setAppId(appId);
         return imFriendshipRequestService.readFriendshipRequestReq(req);
