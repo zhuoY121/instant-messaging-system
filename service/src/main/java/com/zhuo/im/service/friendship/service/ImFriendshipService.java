@@ -30,4 +30,6 @@ public interface ImFriendshipService {
     public ResponseVO deleteBlack(DeleteBlackReq req);
 
     public ResponseVO checkBlack(CheckFriendshipReq req);
+
+    public ResponseVO doAddFriendship(String fromId, FriendshipDto dto, Integer appId);
 }

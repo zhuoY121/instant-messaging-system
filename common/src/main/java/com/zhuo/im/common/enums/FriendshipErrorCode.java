@@ -25,9 +25,9 @@ public enum FriendshipErrorCode implements ApplicationExceptionEnum {
 
     FRIEND_IS_NOT_BLACK(30010,"The friend is not in your blacklist"),
 
-    NOT_APPROVED_OTHER_MAN_REQUEST(30011,"Unable to approve other people's friend requests"),
+    FRIEND_REQUEST_RECIPIENT_NOT_MATCHED(30011,"Friend request recipient does not match"),
 
-    FRIEND_REQUEST_IS_NOT_EXIST(30012,"Friend application does not exist"),
+    FRIEND_REQUEST_NOT_EXIST(30012,"Friend application does not exist"),
 
     FRIEND_SHIP_GROUP_CREATE_ERROR(30014,"Friend group creation failed"),
 

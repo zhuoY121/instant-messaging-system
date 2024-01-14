@@ -59,5 +59,25 @@ CREATE TABLE `im_friendship`  (
     PRIMARY KEY (`app_id`, `from_id`, `to_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
+-- ----------------------------
+-- Table structure for im_friendship_request
+-- ----------------------------
+DROP TABLE IF EXISTS `im_friendship_request`;
+CREATE TABLE `im_friendship_request`  (
+    `id` int(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `app_id` int(20) NULL DEFAULT NULL COMMENT 'app_id',
+    `from_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'from_id',
+    `to_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'to_id',
+    `remark` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL  ,
+    `read_status` int(10) NULL DEFAULT NULL COMMENT '1=The friend request has been read',
+    `add_source` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'friend source',
+    `add_message` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Friend verification information',
+    `approve_status` int(10) NULL DEFAULT NULL COMMENT 'Approval status: 1=Agree 2=Reject',
+    `create_time` bigint(20) NULL DEFAULT NULL,
+    `update_time` bigint(20) NULL DEFAULT NULL,
+    `sequence` bigint(20) NULL DEFAULT NULL,
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
 
 SET FOREIGN_KEY_CHECKS = 1;

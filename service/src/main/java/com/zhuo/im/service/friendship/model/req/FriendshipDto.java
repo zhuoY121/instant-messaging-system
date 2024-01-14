@@ -14,4 +14,6 @@ public class FriendshipDto {
 
     private String extra;
 
+    private String addMessage;
+
 }

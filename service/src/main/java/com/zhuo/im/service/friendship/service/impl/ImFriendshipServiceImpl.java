@@ -3,6 +3,7 @@ package com.zhuo.im.service.friendship.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.enums.AllowFriendTypeEnum;
 import com.zhuo.im.common.enums.CheckFriendshipTypeEnum;
 import com.zhuo.im.common.enums.FriendshipErrorCode;
 import com.zhuo.im.common.enums.FriendshipStatusEnum;
@@ -11,6 +12,7 @@ import com.zhuo.im.service.friendship.dao.mapper.ImFriendshipMapper;
 import com.zhuo.im.service.friendship.model.req.*;
 import com.zhuo.im.service.friendship.model.resp.CheckFriendshipResp;
 import com.zhuo.im.service.friendship.model.resp.ImportFriendshipResp;
+import com.zhuo.im.service.friendship.service.ImFriendshipRequestService;
 import com.zhuo.im.service.friendship.service.ImFriendshipService;
 import com.zhuo.im.service.user.dao.ImUserDataEntity;
 import com.zhuo.im.service.user.service.ImUserService;
@@ -38,6 +40,9 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
 
     @Autowired
     ImUserService imUserService;
+
+    @Autowired
+    ImFriendshipRequestService imFriendshipRequestService;
 
     @Override
     public ResponseVO importFriendship(ImportFriendshipReq req) {
@@ -88,6 +93,16 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
         ResponseVO<ImUserDataEntity> toInfo = imUserService.getSingleUserInfo(req.getToItem().getToId(), req.getAppId());
         if (!toInfo.isOk()) {
             return toInfo;
+        }
+
+        ImUserDataEntity data = toInfo.getData();
+        if (data.getFriendAllowType() != null && data.getFriendAllowType() == AllowFriendTypeEnum.NO_NEED.getCode()) {
+            return this.doAddFriendship(req.getFromId(), req.getToItem(), req.getAppId());
+        } else {
+            ResponseVO responseVO = imFriendshipRequestService.addFriendshipRequest(req.getFromId(), req.getToItem(), req.getAppId());
+            if (!responseVO.isOk()) {
+                return responseVO;
+            }
         }
 
         return this.doAddFriendship(req.getFromId(), req.getToItem(), req.getAppId());
