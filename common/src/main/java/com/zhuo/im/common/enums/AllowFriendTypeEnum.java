@@ -5,12 +5,12 @@ public enum AllowFriendTypeEnum {
     /**
      * verification required
      */
-    NEED(2),
+    NEED(1),
 
     /**
      * No verification required
      */
-    NO_NEED(1),
+    NO_NEED(2),
 
     ;
 
