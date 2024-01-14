@@ -23,4 +23,6 @@ public interface ImFriendshipService {
 
     public ResponseVO getAllFriendship(GetAllFriendshipReq req);
 
+    public ResponseVO checkFriendship(CheckFriendshipReq req);
+
 }

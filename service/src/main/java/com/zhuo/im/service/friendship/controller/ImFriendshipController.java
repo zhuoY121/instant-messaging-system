@@ -58,4 +58,10 @@ public class ImFriendshipController {
         return imFriendshipService.getAllFriendship(req);
     }
 
+    @RequestMapping("/checkFriendship")
+    public ResponseVO checkFriendship(@RequestBody @Validated CheckFriendshipReq req, Integer appId){
+        req.setAppId(appId);
+        return imFriendshipService.checkFriendship(req);
+    }
+
 }

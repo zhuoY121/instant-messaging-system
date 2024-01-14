@@ -3,11 +3,13 @@ package com.zhuo.im.service.friendship.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.enums.CheckFriendshipTypeEnum;
 import com.zhuo.im.common.enums.FriendshipErrorCode;
 import com.zhuo.im.common.enums.FriendshipStatusEnum;
 import com.zhuo.im.service.friendship.dao.ImFriendshipEntity;
 import com.zhuo.im.service.friendship.dao.mapper.ImFriendshipMapper;
 import com.zhuo.im.service.friendship.model.req.*;
+import com.zhuo.im.service.friendship.model.resp.CheckFriendshipResp;
 import com.zhuo.im.service.friendship.model.resp.ImportFriendshipResp;
 import com.zhuo.im.service.friendship.service.ImFriendshipService;
 import com.zhuo.im.service.user.dao.ImUserDataEntity;
@@ -20,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -165,6 +170,38 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
         query.eq("app_id", req.getAppId());
         query.eq("from_id", req.getFromId());
         return ResponseVO.successResponse(imFriendshipMapper.selectList(query));
+    }
+
+    @Override
+    public ResponseVO checkFriendship(CheckFriendshipReq req) {
+
+        Map<String, Integer> result
+                = req.getToIds().stream()
+                .collect(Collectors.toMap(Function.identity(), s -> 0));
+
+        List<CheckFriendshipResp> resp;
+
+        if (req.getCheckType() == CheckFriendshipTypeEnum.SINGLE.getType()) {
+            resp = imFriendshipMapper.checkFriendship(req);
+        } else {
+            resp = imFriendshipMapper.checkFriendshipBoth(req);
+        }
+
+        Map<String, Integer> collect = resp.stream()
+                .collect(Collectors.toMap(CheckFriendshipResp::getToId
+                        , CheckFriendshipResp::getStatus));
+
+        for (String toId : result.keySet()){
+            if(!collect.containsKey(toId)){
+                CheckFriendshipResp checkFriendshipResp = new CheckFriendshipResp();
+                checkFriendshipResp.setFromId(req.getFromId());
+                checkFriendshipResp.setToId(toId);
+                checkFriendshipResp.setStatus(result.get(toId));
+                resp.add(checkFriendshipResp);
+            }
+        }
+
+        return ResponseVO.successResponse(resp);
     }
 
     @Transactional
