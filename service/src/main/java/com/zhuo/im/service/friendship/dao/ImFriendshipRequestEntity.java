@@ -22,17 +22,17 @@ public class ImFriendshipRequestEntity {
     //    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String remark;
 
-    //是否已读. 1=已读
+    // Whether it has been read. 1=Read
     private Integer readStatus;
 
-    /** 好友来源*/
+    // friend source
 //    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String addSource;
 
 //    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String addMessage;
 
-    //审批状态 1同意 2拒绝
+    // Approval status: 1=Accept; 2=Reject
     private Integer approveStatus;
 
 //    @TableField(updateStrategy = FieldStrategy.IGNORED)
@@ -40,7 +40,6 @@ public class ImFriendshipRequestEntity {
 
     private Long updateTime;
 
-    /** 序列号*/
     private Long sequence;
 
 
