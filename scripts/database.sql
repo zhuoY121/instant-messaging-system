@@ -80,4 +80,32 @@ CREATE TABLE `im_friendship_request`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
+-- ----------------------------
+-- Table structure for im_friendship_group
+-- ----------------------------
+DROP TABLE IF EXISTS `im_friendship_group`;
+CREATE TABLE `im_friendship_group`  (
+    `app_id` int(20) NULL DEFAULT NULL COMMENT 'app_id',
+    `from_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'from_id',
+    `group_id` int(50) NOT NULL AUTO_INCREMENT,
+    `group_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+    `sequence` bigint(20) NULL DEFAULT NULL,
+    `create_time` bigint(20) NULL DEFAULT NULL,
+    `update_time` bigint(20) NULL DEFAULT NULL,
+    `del_flag` int(10) NULL DEFAULT NULL COMMENT '0=normal；1=delete',
+    PRIMARY KEY (`group_id`) USING BTREE,
+    UNIQUE INDEX `UNIQUE`(`app_id`, `from_id`, `group_name`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for im_friendship_group_member
+-- ----------------------------
+DROP TABLE IF EXISTS `im_friendship_group_member`;
+CREATE TABLE `im_friendship_group_member`  (
+    `group_id` bigint(20) NOT NULL,
+    `to_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    PRIMARY KEY (`group_id`,`to_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+
 SET FOREIGN_KEY_CHECKS = 1;

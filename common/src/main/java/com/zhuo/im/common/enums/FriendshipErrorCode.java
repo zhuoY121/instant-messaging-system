@@ -29,13 +29,13 @@ public enum FriendshipErrorCode implements ApplicationExceptionEnum {
 
     FRIEND_REQUEST_NOT_EXIST(30012,"Friend application does not exist"),
 
-    FRIEND_SHIP_GROUP_CREATE_ERROR(30014,"Friend group creation failed"),
+    FRIENDSHIP_GROUP_CREATE_ERROR(30014,"Friend group creation failed"),
 
-    FRIEND_SHIP_GROUP_IS_EXIST(30015,"Friends group already exists"),
+    FRIENDSHIP_GROUP_EXIST(30015,"Friends group already exists"),
 
-    FRIEND_SHIP_GROUP_IS_NOT_EXIST(30016,"Friends group does not exist"),
+    FRIENDSHIP_GROUP_NOT_EXIST(30016,"Friends group does not exist"),
 
-
+    FRIENDSHIP_GROUP_UPDATE_ERROR(30017,"Failed to update the group."),
 
     ;
 
