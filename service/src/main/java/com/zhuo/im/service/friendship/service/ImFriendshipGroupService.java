@@ -6,7 +6,6 @@ import com.zhuo.im.service.friendship.model.req.AddFriendshipGroupReq;
 import com.zhuo.im.service.friendship.model.req.DeleteFriendshipGroupReq;
 
 /**
- * @author: Chackylee
  * @description:
  **/
 public interface ImFriendshipGroupService {
