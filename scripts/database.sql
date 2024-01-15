@@ -108,4 +108,51 @@ CREATE TABLE `im_friendship_group_member`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
+-- ----------------------------
+-- Table structure for im_group
+-- ----------------------------
+DROP TABLE IF EXISTS `im_group`;
+CREATE TABLE `im_group`  (
+    `app_id` int(20) NOT NULL COMMENT 'app_id',
+    `group_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'group_id',
+    `owner_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'group owner',
+    `group_type` int(10) NULL DEFAULT NULL COMMENT 'Group type: 1=Private group (WeChat); 2=Public group (QQ)',
+    `group_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+    `mute` int(10) NULL DEFAULT NULL COMMENT 'Whether to mute all members. 0=unmuted; 1=muted.',
+    `apply_join_type` int(10) NULL DEFAULT NULL COMMENT 'The options for applying to join the group include the following:\r\n// 0=no one is allowed to apply to join the group chat\r\n// 1=the group owner or administrator is required to approve\r\n// 2=Everyone can join the group without approval.',
+    `photo` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+    `max_member_count` int(20) NULL DEFAULT NULL,
+    `introduction` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Group introduction',
+    `notification` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Group notice',
+    `status` int(5) NULL DEFAULT NULL COMMENT 'Group status: 0=normal; 1=disbanded',
+    `sequence` bigint(20) NULL DEFAULT NULL,
+    `create_time` bigint(20) NULL DEFAULT NULL,
+    `extra` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'extra info',
+    `update_time` bigint(20) NULL DEFAULT NULL,
+    PRIMARY KEY (`app_id`, `group_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for im_group_member
+-- ----------------------------
+DROP TABLE IF EXISTS `im_group_member`;
+CREATE TABLE `im_group_member`  (
+    `group_member_id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `group_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'group_id',
+    `app_id` int(10) NULL DEFAULT NULL,
+    `member_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'member id',
+    `role` int(10) NULL DEFAULT NULL COMMENT 'Group member type: 0=ordinary members; 1=administrator; 2=group owner; 3=banned members; 4=removed members',
+    `speak_date` bigint(100) NULL DEFAULT NULL,
+    `mute` int(10) NULL DEFAULT NULL COMMENT 'Whether to mute all members: 0=unmuted; 1=muted',
+    `alias` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Group nickname',
+    `join_time` bigint(20) NULL DEFAULT NULL,
+    `leave_time` bigint(20) NULL DEFAULT NULL,
+    `join_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+    `extra` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+    PRIMARY KEY (`group_member_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+
+
+
 SET FOREIGN_KEY_CHECKS = 1;
