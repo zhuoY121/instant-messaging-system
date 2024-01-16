@@ -16,6 +16,6 @@ public class ImportGroupMemberReq extends RequestBase {
     @NotBlank(message = "group id cannot be empty")
     private String groupId;
 
-    private List<GroupMemberDto> members;
+    private List<GroupMemberDto> memberList;
 
 }

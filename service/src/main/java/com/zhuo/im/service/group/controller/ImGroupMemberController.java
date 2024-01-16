@@ -3,6 +3,7 @@ package com.zhuo.im.service.group.controller;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.service.group.model.req.*;
 import com.zhuo.im.service.group.service.ImGroupMemberService;
+import com.zhuo.im.service.group.service.ImGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ImGroupMemberController {
 
     @Autowired
+    ImGroupService groupService;
+
+    @Autowired
     ImGroupMemberService groupMemberService;
 
     @RequestMapping("/importGroupMember")
@@ -27,5 +31,11 @@ public class ImGroupMemberController {
         return groupMemberService.importGroupMember(req);
     }
 
+    @RequestMapping("/update")
+    public ResponseVO update(@RequestBody @Validated UpdateGroupReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupService.updateBaseGroupInfo(req);
+    }
 
 }

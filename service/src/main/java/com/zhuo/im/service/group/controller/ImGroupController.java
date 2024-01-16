@@ -27,4 +27,23 @@ public class ImGroupController {
         return groupService.importGroup(req);
     }
 
+    @RequestMapping("/createGroup")
+    public ResponseVO createGroup(@RequestBody @Validated CreateGroupReq req, Integer appId, String identifier) {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupService.createGroup(req);
+    }
+
+    @RequestMapping("/getGroup")
+    public ResponseVO getGroup(@RequestBody @Validated GetGroupReq req, Integer appId)  {
+        req.setAppId(appId);
+        return groupService.getGroup(req);
+    }
+
+    @RequestMapping("/updateGroup")
+    public ResponseVO update(@RequestBody @Validated UpdateGroupReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupService.updateBaseGroupInfo(req);
+    }
 }

@@ -10,6 +10,7 @@ import com.zhuo.im.service.group.dao.mapper.ImGroupMemberMapper;
 import com.zhuo.im.service.group.model.req.GroupMemberDto;
 import com.zhuo.im.service.group.model.req.ImportGroupMemberReq;
 import com.zhuo.im.service.group.model.resp.AddMemberResp;
+import com.zhuo.im.service.group.model.resp.GetRoleInGroupResp;
 import com.zhuo.im.service.group.service.ImGroupMemberService;
 import com.zhuo.im.service.group.service.ImGroupService;
 import com.zhuo.im.service.user.dao.ImUserDataEntity;
@@ -52,7 +53,7 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
             return groupResp;
         }
 
-        for (GroupMemberDto memberDto : req.getMembers()) {
+        for (GroupMemberDto memberDto : req.getMemberList()) {
             ResponseVO responseVO;
             try {
                 responseVO = thisService.addGroupMember(req.getGroupId(), req.getAppId(), memberDto);
@@ -136,6 +137,32 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
 
     }
 
+    @Override
+    public ResponseVO<GetRoleInGroupResp> getRoleInGroup(String groupId, String memberId, Integer appId) {
+
+        QueryWrapper<ImGroupMemberEntity> query = new QueryWrapper<>();
+        query.eq("group_id", groupId);
+        query.eq("app_id", appId);
+        query.eq("member_id", memberId);
+
+        ImGroupMemberEntity imGroupMemberEntity = imGroupMemberMapper.selectOne(query);
+        if (imGroupMemberEntity == null || imGroupMemberEntity.getRole() == GroupMemberRoleEnum.LEFT.getCode()) {
+            return ResponseVO.errorResponse(GroupErrorCode.MEMBER_IS_NOT_IN_GROUP);
+        }
+
+        GetRoleInGroupResp resp = new GetRoleInGroupResp();
+        resp.setSpeakDate(imGroupMemberEntity.getSpeakDate());
+        resp.setGroupMemberId(imGroupMemberEntity.getGroupMemberId());
+        resp.setMemberId(imGroupMemberEntity.getMemberId());
+        resp.setRole(imGroupMemberEntity.getRole());
+        return ResponseVO.successResponse(resp);
+    }
+
+    @Override
+    public ResponseVO<List<GroupMemberDto>> getGroupMember(String groupId, Integer appId) {
+        List<GroupMemberDto> groupMember = imGroupMemberMapper.getGroupMember(appId, groupId);
+        return ResponseVO.successResponse(groupMember);
+    }
 
 
 }

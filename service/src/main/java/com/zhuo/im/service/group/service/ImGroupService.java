@@ -12,6 +12,12 @@ public interface ImGroupService {
 
     public ResponseVO importGroup(ImportGroupReq req);
 
+    public ResponseVO createGroup(CreateGroupReq req);
+
     public ResponseVO<ImGroupEntity> getGroup(String groupId, Integer appId);
-//
+
+    public ResponseVO updateBaseGroupInfo(UpdateGroupReq req);
+
+    public ResponseVO getGroup(GetGroupReq req);
+
 }

@@ -21,11 +21,11 @@ public enum GroupErrorCode implements ApplicationExceptionEnum {
 
     MEMBER_IS_NOT_IN_GROUP(40006, "This user is not in the group"),
 
-    THIS_OPERATE_NEED_MANAGER_ROLE(40007, "This operation is only allowed for group owners/administrators"),
+    NEED_OWNER_OR_MANAGER_ROLE(40007, "This operation is only allowed for group owners/managers"),
 
-    THIS_OPERATE_NEED_APP_MANAGER_ROLE(40008, "This operation is only allowed for APP administrators"),
+    NEED_APP_ADMIN_ROLE(40008, "This operation is only allowed for APP administrators"),
 
-    THIS_OPERATE_NEED_OWNER_ROLE(40009, "This operation only allows group owners to operate"),
+    NEED_OWNER_ROLE(40009, "This operation only allows group owners to operate"),
 
     CANNOT_REMOVE_GROUP_OWNER(40010, "The group owner cannot be removed"),
 
