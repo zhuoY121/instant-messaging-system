@@ -2,6 +2,7 @@ package com.zhuo.im.service.group.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.enums.GroupErrorCode;
 import com.zhuo.im.common.enums.GroupMemberRoleEnum;
@@ -163,7 +164,7 @@ public class ImGroupServiceImpl implements ImGroupService {
             throw new ApplicationException(GroupErrorCode.GROUP_EXIST);
         }
 
-        if(imGroupEntity.getStatus() == GroupStatusEnum.DESTROY.getCode()){
+        if(imGroupEntity.getStatus() == GroupStatusEnum.DISBANDED.getCode()){
             throw new ApplicationException(GroupErrorCode.GROUP_IS_DISBANDED);
         }
 
@@ -258,6 +259,87 @@ public class ImGroupServiceImpl implements ImGroupService {
             return ResponseVO.successResponse(groupList);
         }
 
+    }
+
+    /**
+     * @description Disband the group. Only the backend administrator and group owner can disband the group
+     * @param req
+     * @return
+     */
+    @Override
+    @Transactional
+    public ResponseVO deleteGroup(DeleteGroupReq req) {
+
+        boolean isAdmin = false;
+
+        QueryWrapper<ImGroupEntity> objectQueryWrapper = new QueryWrapper<>();
+        objectQueryWrapper.eq("group_id", req.getGroupId());
+        objectQueryWrapper.eq("app_id", req.getAppId());
+        ImGroupEntity imGroupEntity = imGroupMapper.selectOne(objectQueryWrapper);
+        if (imGroupEntity == null) {
+            throw new ApplicationException(GroupErrorCode.CANNOT_DISBAND_PRIVATE_GROUP);
+        }
+
+        if(imGroupEntity.getStatus() == GroupStatusEnum.DISBANDED.getCode()){
+            throw new ApplicationException(GroupErrorCode.GROUP_IS_DISBANDED);
+        }
+
+        if (!isAdmin) {
+            if (imGroupEntity.getGroupType() == GroupTypeEnum.PRIVATE.getCode()) {
+                throw new ApplicationException(GroupErrorCode.NEED_OWNER_ROLE);
+            }
+
+            if (imGroupEntity.getGroupType() == GroupTypeEnum.PUBLIC.getCode() &&
+                    !imGroupEntity.getOwnerId().equals(req.getOperator())) {
+                throw new ApplicationException(GroupErrorCode.NEED_OWNER_ROLE);
+            }
+        }
+
+        ImGroupEntity update = new ImGroupEntity();
+
+        update.setStatus(GroupStatusEnum.DISBANDED.getCode());
+        int update1 = imGroupMapper.update(update, objectQueryWrapper);
+        if (update1 != 1) {
+            throw new ApplicationException(GroupErrorCode.UPDATE_GROUP_BASE_INFO_ERROR);
+        }
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    @Transactional
+    public ResponseVO transferGroup(TransferGroupReq req) {
+
+        ResponseVO<GetRoleInGroupResp> roleInGroupOne = groupMemberService.getRoleInGroup(req.getGroupId(), req.getOperator(), req.getAppId());
+        if (!roleInGroupOne.isOk()) {
+            return roleInGroupOne;
+        }
+
+        if (roleInGroupOne.getData().getRole() != GroupMemberRoleEnum.OWNER.getCode()) {
+            return ResponseVO.errorResponse(GroupErrorCode.NEED_OWNER_ROLE);
+        }
+
+        ResponseVO<GetRoleInGroupResp> newOwnerRole = groupMemberService.getRoleInGroup(req.getGroupId(), req.getOwnerId(), req.getAppId());
+        if (!newOwnerRole.isOk()) {
+            return newOwnerRole;
+        }
+
+        QueryWrapper<ImGroupEntity> objectQueryWrapper = new QueryWrapper<>();
+        objectQueryWrapper.eq("group_id", req.getGroupId());
+        objectQueryWrapper.eq("app_id", req.getAppId());
+        ImGroupEntity imGroupEntity = imGroupMapper.selectOne(objectQueryWrapper);
+        if(imGroupEntity.getStatus() == GroupStatusEnum.DISBANDED.getCode()){
+            throw new ApplicationException(GroupErrorCode.GROUP_IS_DISBANDED);
+        }
+
+        ImGroupEntity updateGroup = new ImGroupEntity();
+        updateGroup.setOwnerId(req.getOwnerId());
+        UpdateWrapper<ImGroupEntity> updateGroupWrapper = new UpdateWrapper<>();
+        updateGroupWrapper.eq("app_id", req.getAppId());
+        updateGroupWrapper.eq("group_id", req.getGroupId());
+        imGroupMapper.update(updateGroup, updateGroupWrapper);
+        groupMemberService.transferGroupMember(req.getOwnerId(), req.getGroupId(), req.getAppId());
+
+        return ResponseVO.successResponse();
     }
 
 

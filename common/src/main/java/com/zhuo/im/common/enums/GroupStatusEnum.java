@@ -3,11 +3,11 @@ package com.zhuo.im.common.enums;
 public enum GroupStatusEnum {
 
     /**
-     * 1 Normal; 2 Disbanded. Others to be determined such as banned...
+     * 0 Normal; 1 Disbanded. Others to be determined such as banned...
      */
-    NORMAL(1),
+    NORMAL(0),
 
-    DESTROY(2),
+    DISBANDED(1),
 
     ;
 

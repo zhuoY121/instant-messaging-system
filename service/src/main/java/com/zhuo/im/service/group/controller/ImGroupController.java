@@ -54,4 +54,18 @@ public class ImGroupController {
         return groupService.getJoinedGroup(req);
     }
 
+    @RequestMapping("/deleteGroup")
+    public ResponseVO deleteGroup(@RequestBody @Validated DeleteGroupReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupService.deleteGroup(req);
+    }
+
+    @RequestMapping("/transferGroup")
+    public ResponseVO transferGroup(@RequestBody @Validated TransferGroupReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupService.transferGroup(req);
+    }
+
 }

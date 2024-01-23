@@ -1,6 +1,7 @@
 package com.zhuo.im.service.group.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhuo.im.common.ResponseVO;
@@ -187,6 +188,30 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
         } else {
             return ResponseVO.successResponse(imGroupMemberMapper.getJoinedGroupId(req.getAppId(), req.getMemberId()));
         }
+    }
+
+    @Override
+    public ResponseVO transferGroupMember(String owner, String groupId, Integer appId) {
+
+        // Update old group owner
+        ImGroupMemberEntity imGroupMemberEntity = new ImGroupMemberEntity();
+        imGroupMemberEntity.setRole(GroupMemberRoleEnum.ORDINARY.getCode());
+        UpdateWrapper<ImGroupMemberEntity> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("app_id", appId);
+        updateWrapper.eq("group_id", groupId);
+        updateWrapper.eq("role", GroupMemberRoleEnum.OWNER.getCode());
+        imGroupMemberMapper.update(imGroupMemberEntity, updateWrapper);
+
+        // Update new group owner
+        ImGroupMemberEntity newOwner = new ImGroupMemberEntity();
+        newOwner.setRole(GroupMemberRoleEnum.OWNER.getCode());
+        UpdateWrapper<ImGroupMemberEntity> ownerWrapper = new UpdateWrapper<>();
+        ownerWrapper.eq("app_id", appId);
+        ownerWrapper.eq("group_id", groupId);
+        ownerWrapper.eq("member_id", owner);
+        imGroupMemberMapper.update(newOwner, ownerWrapper);
+
+        return ResponseVO.successResponse();
     }
 
 
