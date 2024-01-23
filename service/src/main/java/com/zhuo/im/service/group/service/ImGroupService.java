@@ -20,4 +20,6 @@ public interface ImGroupService {
 
     public ResponseVO getGroup(GetGroupReq req);
 
+    public ResponseVO getJoinedGroup(GetJoinedGroupReq req);
+
 }

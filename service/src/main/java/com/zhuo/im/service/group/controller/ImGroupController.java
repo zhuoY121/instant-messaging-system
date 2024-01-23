@@ -46,4 +46,12 @@ public class ImGroupController {
         req.setOperator(identifier);
         return groupService.updateBaseGroupInfo(req);
     }
+
+    @RequestMapping("/getJoinedGroup")
+    public ResponseVO getJoinedGroup(@RequestBody @Validated GetJoinedGroupReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupService.getJoinedGroup(req);
+    }
+
 }

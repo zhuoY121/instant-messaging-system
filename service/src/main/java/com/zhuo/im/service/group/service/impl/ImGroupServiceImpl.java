@@ -1,5 +1,6 @@
 package com.zhuo.im.service.group.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.enums.GroupErrorCode;
@@ -11,6 +12,7 @@ import com.zhuo.im.service.group.dao.ImGroupEntity;
 import com.zhuo.im.service.group.dao.mapper.ImGroupMapper;
 import com.zhuo.im.service.group.model.req.*;
 import com.zhuo.im.service.group.model.resp.GetGroupResp;
+import com.zhuo.im.service.group.model.resp.GetJoinedGroupResp;
 import com.zhuo.im.service.group.model.resp.GetRoleInGroupResp;
 import com.zhuo.im.service.group.service.ImGroupMemberService;
 import com.zhuo.im.service.group.service.ImGroupService;
@@ -19,7 +21,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -216,6 +221,43 @@ public class ImGroupServiceImpl implements ImGroupService {
             e.printStackTrace();
         }
         return ResponseVO.successResponse(getGroupResp);
+    }
+
+    @Override
+    public ResponseVO getJoinedGroup(GetJoinedGroupReq req) {
+
+        // Get joined group IDs
+        ResponseVO<Collection<String>> joinedGroupByMember = groupMemberService.getJoinedGroupByMember(req);
+        if (!joinedGroupByMember.isOk()) {
+            return joinedGroupByMember;
+        }
+
+        GetJoinedGroupResp resp = new GetJoinedGroupResp();
+        if (CollectionUtils.isEmpty(joinedGroupByMember.getData())) {
+            resp.setTotalCount(0);
+            resp.setGroupList(new ArrayList<>());
+            return ResponseVO.successResponse(resp);
+
+        } else {
+            QueryWrapper<ImGroupEntity> query = new QueryWrapper<>();
+            query.eq("app_id", req.getAppId());
+            query.in("group_id", joinedGroupByMember.getData());
+            if (!CollectionUtils.isEmpty(req.getGroupType())) {
+                query.in("group_type", req.getGroupType());
+            }
+
+            List<ImGroupEntity> groupList = imGroupMapper.selectList(query);
+            resp.setGroupList(groupList);
+            if (req.getLimit() == null) {
+                resp.setTotalCount(groupList.size());
+            } else {
+                resp.setTotalCount(imGroupMapper.selectCount(query));
+            }
+
+            // Get group info by group id
+            return ResponseVO.successResponse(groupList);
+        }
+
     }
 
 

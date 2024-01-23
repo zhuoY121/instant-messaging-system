@@ -4,6 +4,7 @@ import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.service.group.model.req.*;
 import com.zhuo.im.service.group.model.resp.GetRoleInGroupResp;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -20,5 +21,7 @@ public interface ImGroupMemberService {
     public ResponseVO<GetRoleInGroupResp> getRoleInGroup(String groupId, String memberId, Integer appId);
 
     public ResponseVO<List<GroupMemberDto>> getGroupMember(String groupId, Integer appId);
+
+    public ResponseVO<Collection<String>> getJoinedGroupByMember(GetJoinedGroupReq req);
 
 }
