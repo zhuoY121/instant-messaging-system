@@ -18,6 +18,8 @@ public interface ImGroupMemberService {
 
     public ResponseVO addGroupMember(String groupId, Integer appId, GroupMemberDto dto);
 
+    public ResponseVO addGroupMember(AddGroupMemberReq req);
+
     public ResponseVO<GetRoleInGroupResp> getRoleInGroup(String groupId, String memberId, Integer appId);
 
     public ResponseVO<List<GroupMemberDto>> getGroupMember(String groupId, Integer appId);
@@ -25,5 +27,9 @@ public interface ImGroupMemberService {
     public ResponseVO<Collection<String>> getJoinedGroupByMember(GetJoinedGroupReq req);
 
     public ResponseVO transferGroupMember(String owner, String groupId, Integer appId);
+
+    public ResponseVO removeGroupMember(RemoveGroupMemberReq req);
+
+    public ResponseVO removeGroupMember(String groupId, Integer appId, String memberId);
 
 }

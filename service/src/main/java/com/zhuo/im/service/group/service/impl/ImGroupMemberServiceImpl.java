@@ -7,12 +7,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.enums.GroupErrorCode;
 import com.zhuo.im.common.enums.GroupMemberRoleEnum;
+import com.zhuo.im.common.enums.GroupTypeEnum;
+import com.zhuo.im.common.exception.ApplicationException;
 import com.zhuo.im.service.group.dao.ImGroupEntity;
 import com.zhuo.im.service.group.dao.ImGroupMemberEntity;
 import com.zhuo.im.service.group.dao.mapper.ImGroupMemberMapper;
-import com.zhuo.im.service.group.model.req.GetJoinedGroupReq;
-import com.zhuo.im.service.group.model.req.GroupMemberDto;
-import com.zhuo.im.service.group.model.req.ImportGroupMemberReq;
+import com.zhuo.im.service.group.model.req.*;
 import com.zhuo.im.service.group.model.resp.AddMemberResp;
 import com.zhuo.im.service.group.model.resp.GetRoleInGroupResp;
 import com.zhuo.im.service.group.service.ImGroupMemberService;
@@ -141,6 +141,65 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
 
     }
 
+    /**
+     * @description: The logic of adding group members, adding people into the group, and entering the group chat directly.
+     * If you are an APP administrator, you can directly join the group.
+     * Otherwise, only private groups can call this interface, and group members can also bring people into the group.
+     * Only private groups can call this interface.
+     * @param req
+     * @return
+     */
+    @Override
+    public ResponseVO addGroupMember(AddGroupMemberReq req) {
+
+        List<AddMemberResp> resp = new ArrayList<>();
+
+        boolean isAdmin = false;
+        ResponseVO<ImGroupEntity> groupResp = groupService.getGroup(req.getGroupId(), req.getAppId());
+        if (!groupResp.isOk()) {
+            return groupResp;
+        }
+
+        List<GroupMemberDto> membersDto = req.getMemberList();
+
+        ImGroupEntity group = groupResp.getData();
+
+        /**
+         * Private group (private) is similar to an ordinary WeChat group. After creation, only friends who are already in the group can be invited to join the group without the consent of the invited party or the approval of the group owner.
+         * Public group (Public) is similar to QQ group. After creation, the group owner can designate the group managers. Approval by the group owner or managers is required before joining the group.
+         * Group type: 1=private group (similar to WeChat); 2=public group (similar to QQ)
+         */
+        if (!isAdmin && GroupTypeEnum.PUBLIC.getCode() == group.getGroupType()) {
+            throw new ApplicationException(GroupErrorCode.NEED_APP_ADMIN_ROLE);
+        }
+
+        List<String> successId = new ArrayList<>();
+        for (GroupMemberDto memberId : membersDto) {
+            ResponseVO responseVO = null;
+            try {
+                responseVO = thisService.addGroupMember(req.getGroupId(), req.getAppId(), memberId);
+            } catch (Exception e) {
+                e.printStackTrace();
+                responseVO = ResponseVO.errorResponse();
+            }
+            AddMemberResp addMemberResp = new AddMemberResp();
+            addMemberResp.setMemberId(memberId.getMemberId());
+            if (responseVO.isOk()) {
+                successId.add(memberId.getMemberId());
+                addMemberResp.setResult(0);
+            } else if (responseVO.getCode() == GroupErrorCode.USER_IS_IN_GROUP.getCode()) {
+                addMemberResp.setResult(2);
+                addMemberResp.setResultMessage(responseVO.getMsg());
+            } else {
+                addMemberResp.setResult(1);
+                addMemberResp.setResultMessage(responseVO.getMsg());
+            }
+            resp.add(addMemberResp);
+        }
+
+        return ResponseVO.successResponse(resp);
+    }
+
     @Override
     public ResponseVO<GetRoleInGroupResp> getRoleInGroup(String groupId, String memberId, Integer appId) {
 
@@ -211,6 +270,93 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
         ownerWrapper.eq("member_id", owner);
         imGroupMemberMapper.update(newOwner, ownerWrapper);
 
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO removeGroupMember(RemoveGroupMemberReq req) {
+
+        boolean isAdmin = false;
+        ResponseVO<ImGroupEntity> groupResp = groupService.getGroup(req.getGroupId(), req.getAppId());
+        if (!groupResp.isOk()) {
+            return groupResp;
+        }
+
+        ImGroupEntity group = groupResp.getData();
+
+        if (!isAdmin) {
+            if (GroupTypeEnum.PUBLIC.getCode() == group.getGroupType()) {
+
+                // Obtain the permission of the operator. The administrator or group leader or group member
+                ResponseVO<GetRoleInGroupResp> role = getRoleInGroup(req.getGroupId(), req.getOperator(), req.getAppId());
+                if (!role.isOk()) {
+                    return role;
+                }
+
+                GetRoleInGroupResp data = role.getData();
+                Integer roleInfo = data.getRole();
+
+                boolean isOwner = roleInfo == GroupMemberRoleEnum.OWNER.getCode();
+                boolean isManager = roleInfo == GroupMemberRoleEnum.MANAGER.getCode();
+
+                if (!isOwner && !isManager) {
+                    throw new ApplicationException(GroupErrorCode.NEED_OWNER_OR_MANAGER_ROLE);
+                }
+
+                // In a private group, you must be the group leader to remove members.
+                if (!isOwner && GroupTypeEnum.PRIVATE.getCode() == group.getGroupType()) {
+                    throw new ApplicationException(GroupErrorCode.NEED_OWNER_ROLE);
+                }
+
+                // In public groups, managers and group owners can remove people, but managers can only remove ordinary group members.
+                if (GroupTypeEnum.PUBLIC.getCode() == group.getGroupType()) {
+                    // throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_MANAGER_ROLE);
+                    // Get permissions of people removed from group chat
+                    ResponseVO<GetRoleInGroupResp> roleInGroupOne = this.getRoleInGroup(req.getGroupId(), req.getMemberId(), req.getAppId());
+                    if (!roleInGroupOne.isOk()) {
+                        return roleInGroupOne;
+                    }
+                    GetRoleInGroupResp memberRole = roleInGroupOne.getData();
+                    if (memberRole.getRole() == GroupMemberRoleEnum.OWNER.getCode()) {
+                        throw new ApplicationException(GroupErrorCode.CANNOT_REMOVE_GROUP_OWNER);
+                    }
+                    // If the operator is a manager and the person removed from the group chat is not an ordinary group member (owner or manager), the operation cannot be performed.
+                    // Because the group manager can only remove ordinary group members.
+                    if (isManager && memberRole.getRole() != GroupMemberRoleEnum.ORDINARY.getCode()) {
+                        throw new ApplicationException(GroupErrorCode.NEED_OWNER_ROLE);
+                    }
+                }
+            }
+        }
+
+        ResponseVO responseVO = thisService.removeGroupMember(req.getGroupId(), req.getAppId(), req.getMemberId());
+        return responseVO;
+    }
+
+    /**
+     * @description: Delete group members, only for internal calls
+     * @return
+     */
+    @Override
+    @Transactional
+    public ResponseVO removeGroupMember(String groupId, Integer appId, String memberId) {
+
+        ResponseVO<ImUserDataEntity> singleUserInfo = imUserService.getSingleUserInfo(memberId, appId);
+        if (!singleUserInfo.isOk()) {
+            return singleUserInfo;
+        }
+
+        ResponseVO<GetRoleInGroupResp> roleInGroupOne = getRoleInGroup(groupId, memberId, appId);
+        if (!roleInGroupOne.isOk()) {
+            return roleInGroupOne;
+        }
+
+        GetRoleInGroupResp data = roleInGroupOne.getData();
+        ImGroupMemberEntity imGroupMemberEntity = new ImGroupMemberEntity();
+        imGroupMemberEntity.setRole(GroupMemberRoleEnum.LEFT.getCode());
+        imGroupMemberEntity.setLeaveTime(System.currentTimeMillis());
+        imGroupMemberEntity.setGroupMemberId(data.getGroupMemberId());
+        imGroupMemberMapper.updateById(imGroupMemberEntity);
         return ResponseVO.successResponse();
     }
 

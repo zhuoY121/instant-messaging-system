@@ -31,6 +31,20 @@ public class ImGroupMemberController {
         return groupMemberService.importGroupMember(req);
     }
 
+    @RequestMapping("/add")
+    public ResponseVO addGroupMember(@RequestBody @Validated AddGroupMemberReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupMemberService.addGroupMember(req);
+    }
+
+    @RequestMapping("/remove")
+    public ResponseVO removeGroupMember(@RequestBody @Validated RemoveGroupMemberReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupMemberService.removeGroupMember(req);
+    }
+
     @RequestMapping("/update")
     public ResponseVO update(@RequestBody @Validated UpdateGroupReq req, Integer appId, String identifier)  {
         req.setAppId(appId);
