@@ -32,4 +32,6 @@ public interface ImGroupMemberService {
 
     public ResponseVO removeGroupMember(String groupId, Integer appId, String memberId);
 
+    public ResponseVO updateGroupMember(UpdateGroupMemberReq req);
+
 }

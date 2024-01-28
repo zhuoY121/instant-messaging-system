@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.enums.GroupErrorCode;
 import com.zhuo.im.common.enums.GroupMemberRoleEnum;
+import com.zhuo.im.common.enums.GroupStatusEnum;
 import com.zhuo.im.common.enums.GroupTypeEnum;
 import com.zhuo.im.common.exception.ApplicationException;
 import com.zhuo.im.service.group.dao.ImGroupEntity;
@@ -20,6 +21,7 @@ import com.zhuo.im.service.group.service.ImGroupService;
 import com.zhuo.im.service.user.dao.ImUserDataEntity;
 import com.zhuo.im.service.user.service.ImUserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -357,6 +359,95 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
         imGroupMemberEntity.setLeaveTime(System.currentTimeMillis());
         imGroupMemberEntity.setGroupMemberId(data.getGroupMemberId());
         imGroupMemberMapper.updateById(imGroupMemberEntity);
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    @Transactional
+    public ResponseVO updateGroupMember(UpdateGroupMemberReq req) {
+
+        boolean isAdmin = false;
+
+        ResponseVO<ImGroupEntity> group = groupService.getGroup(req.getGroupId(), req.getAppId());
+        if (!group.isOk()) {
+            return group;
+        }
+
+        ImGroupEntity groupData = group.getData();
+        if (groupData.getStatus() == GroupStatusEnum.DISBANDED.getCode()) {
+            throw new ApplicationException(GroupErrorCode.GROUP_IS_DISBANDED);
+        }
+
+        // Whether the current operator is the target user.
+        boolean isMyself = req.getOperator().equals(req.getMemberId());
+
+        if (!isAdmin) {
+            // Other people cannot change your group alias. Only you can change your group alias.
+            if (!StringUtils.isBlank(req.getAlias()) && !isMyself) {
+                return ResponseVO.errorResponse(GroupErrorCode.NEED_YOURSELF);
+            }
+
+            // If you want to modify permissions, follow the following logic
+            if (req.getRole() != null) {
+                // Private groups cannot set up managers/owners (TBD)
+                if (groupData.getGroupType() == GroupTypeEnum.PRIVATE.getCode() &&
+                        req.getRole() != null &&
+                        (req.getRole() == GroupMemberRoleEnum.MANAGER.getCode() || req.getRole() == GroupMemberRoleEnum.OWNER.getCode())) {
+                    return ResponseVO.errorResponse(GroupErrorCode.NEED_APP_ADMIN_ROLE);
+                }
+
+                // Get the role of the target person.
+                ResponseVO<GetRoleInGroupResp> roleInGroup = this.getRoleInGroup(req.getGroupId(), req.getMemberId(), req.getAppId());
+                if (!roleInGroup.isOk()) {
+                    return roleInGroup;
+                }
+
+                // Get the role of the current operator.
+                ResponseVO<GetRoleInGroupResp> operatorRoleInGroup = this.getRoleInGroup(req.getGroupId(), req.getOperator(), req.getAppId());
+                if (!operatorRoleInGroup.isOk()) {
+                    return operatorRoleInGroup;
+                }
+
+                GetRoleInGroupResp data = operatorRoleInGroup.getData();
+                Integer roleInfo = data.getRole();
+                boolean isOwner = roleInfo == GroupMemberRoleEnum.OWNER.getCode();
+                boolean isManager = roleInfo == GroupMemberRoleEnum.MANAGER.getCode();
+
+                // Only group owners or managers can modify permissions
+                if (req.getRole() != null && !isOwner && !isManager) {
+                    return ResponseVO.errorResponse(GroupErrorCode.NEED_OWNER_OR_MANAGER_ROLE);
+                }
+
+                // Only the group owner can set up managers
+                if (req.getRole() != null && req.getRole() == GroupMemberRoleEnum.MANAGER.getCode() && !isOwner) {
+                    return ResponseVO.errorResponse(GroupErrorCode.NEED_OWNER_ROLE);
+                }
+
+            }
+        }
+
+        ImGroupMemberEntity update = new ImGroupMemberEntity();
+
+        if (StringUtils.isNotBlank(req.getAlias())) {
+            update.setAlias(req.getAlias());
+        }
+
+        // It is not allowed to directly specify the group owner through this interface.
+        // The group owner can only be designated through the transfer interface.
+        if (req.getRole() != null) {
+            if (req.getRole() == GroupMemberRoleEnum.OWNER.getCode()) {
+                throw new ApplicationException(GroupErrorCode.CANNOT_SET_GROUP_OWNER);
+            } else {
+                update.setRole(req.getRole());
+            }
+        }
+
+        UpdateWrapper<ImGroupMemberEntity> objectUpdateWrapper = new UpdateWrapper<>();
+        objectUpdateWrapper.eq("app_id", req.getAppId());
+        objectUpdateWrapper.eq("member_id", req.getMemberId());
+        objectUpdateWrapper.eq("group_id", req.getGroupId());
+        imGroupMemberMapper.update(update, objectUpdateWrapper);
+
         return ResponseVO.successResponse();
     }
 

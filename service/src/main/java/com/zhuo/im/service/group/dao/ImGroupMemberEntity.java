@@ -23,7 +23,7 @@ public class ImGroupMemberEntity {
     //
     private String memberId;
 
-    // Group member type, 0 ordinary members, 1 administrator, 2 group owner, 3 banned, 4 removed members
+    // Group member type, 0 ordinary members, 1 manager, 2 group owner, 3 banned, 4 removed members
     private Integer role;
 
     private Long speakDate;

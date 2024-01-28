@@ -35,7 +35,7 @@ public enum GroupErrorCode implements ApplicationExceptionEnum {
 
     IMPORT_GROUP_ERROR(40013, "Failed to import group"),
 
-    THIS_OPERATE_NEED_YOURSELF(40014,"This operation only allows you to operate"),
+    NEED_YOURSELF(40014,"This operation needs to be performed by yourself"),
 
     CANNOT_DISBAND_PRIVATE_GROUP(40015, "Private groups are not allowed to be disbanded"),
 
@@ -45,6 +45,7 @@ public enum GroupErrorCode implements ApplicationExceptionEnum {
 
     GROUP_IS_DISBANDED(40018,"Group has been disbanded"),
 
+    CANNOT_SET_GROUP_OWNER(41000, "Cannot set the group owner."),
     ;
 
     private int code;

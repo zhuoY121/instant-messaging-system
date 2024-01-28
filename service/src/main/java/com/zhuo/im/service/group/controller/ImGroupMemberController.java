@@ -46,10 +46,10 @@ public class ImGroupMemberController {
     }
 
     @RequestMapping("/update")
-    public ResponseVO update(@RequestBody @Validated UpdateGroupReq req, Integer appId, String identifier)  {
+    public ResponseVO updateGroupMember(@RequestBody @Validated UpdateGroupMemberReq req, Integer appId, String identifier)  {
         req.setAppId(appId);
         req.setOperator(identifier);
-        return groupService.updateBaseGroupInfo(req);
+        return groupMemberService.updateGroupMember(req);
     }
 
 }
