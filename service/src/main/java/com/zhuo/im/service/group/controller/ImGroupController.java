@@ -68,4 +68,11 @@ public class ImGroupController {
         return groupService.transferGroup(req);
     }
 
+    @RequestMapping("/muteGroup")
+    public ResponseVO muteGroup(@RequestBody @Validated MuteGroupReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupService.muteGroup(req);
+    }
+
 }

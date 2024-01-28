@@ -34,4 +34,5 @@ public interface ImGroupMemberService {
 
     public ResponseVO updateGroupMember(UpdateGroupMemberReq req);
 
+    public ResponseVO muteGroupMember(MuteGroupMemberReq req);
 }

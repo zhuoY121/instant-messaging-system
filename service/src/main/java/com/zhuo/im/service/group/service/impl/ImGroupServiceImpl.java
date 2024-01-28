@@ -342,5 +342,50 @@ public class ImGroupServiceImpl implements ImGroupService {
         return ResponseVO.successResponse();
     }
 
+    @Override
+    public ResponseVO muteGroup(MuteGroupReq req) {
+
+        ResponseVO<ImGroupEntity> groupResp = getGroup(req.getGroupId(), req.getAppId());
+        if (!groupResp.isOk()) {
+            return groupResp;
+        }
+
+        if(groupResp.getData().getStatus() == GroupStatusEnum.DISBANDED.getCode()){
+            throw new ApplicationException(GroupErrorCode.GROUP_IS_DISBANDED);
+        }
+
+        boolean isAdmin = false;
+
+        if (!isAdmin) {
+            // Check permissions
+            ResponseVO<GetRoleInGroupResp> role = groupMemberService.getRoleInGroup(req.getGroupId(), req.getOperator(), req.getAppId());
+
+            if (!role.isOk()) {
+                return role;
+            }
+
+            GetRoleInGroupResp data = role.getData();
+            Integer roleInfo = data.getRole();
+
+            boolean isOwner = roleInfo == GroupMemberRoleEnum.OWNER.getCode();
+            boolean isManager = roleInfo == GroupMemberRoleEnum.MANAGER.getCode();
+
+            // In public groups, only the group owner or group managers can modify information.
+            if (!isOwner && !isManager) {
+                throw new ApplicationException(GroupErrorCode.NEED_OWNER_OR_MANAGER_ROLE);
+            }
+        }
+
+        ImGroupEntity update = new ImGroupEntity();
+        update.setMute(req.getMuted());
+
+        UpdateWrapper<ImGroupEntity> wrapper = new UpdateWrapper<>();
+        wrapper.eq("group_id",req.getGroupId());
+        wrapper.eq("app_id",req.getAppId());
+        imGroupMapper.update(update,wrapper);
+
+        return ResponseVO.successResponse();
+    }
+
 
 }

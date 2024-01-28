@@ -451,5 +451,74 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
         return ResponseVO.successResponse();
     }
 
+    @Override
+    public ResponseVO muteGroupMember(MuteGroupMemberReq req) {
+
+        ResponseVO<ImGroupEntity> groupResp = groupService.getGroup(req.getGroupId(), req.getAppId());
+        if (!groupResp.isOk()) {
+            return groupResp;
+        }
+
+        boolean isAdmin = false;
+
+        GetRoleInGroupResp memberRole = null;
+
+        if (!isAdmin) {
+
+            // Obtain the permission of the operator
+            ResponseVO<GetRoleInGroupResp> role = getRoleInGroup(req.getGroupId(), req.getOperator(), req.getAppId());
+            if (!role.isOk()) {
+                return role;
+            }
+
+            GetRoleInGroupResp data = role.getData();
+            Integer roleInfo = data.getRole();
+
+            boolean isOwner = roleInfo == GroupMemberRoleEnum.OWNER.getCode();
+            boolean isManager = roleInfo == GroupMemberRoleEnum.MANAGER.getCode();
+
+            if (!isOwner && !isManager) {
+                throw new ApplicationException(GroupErrorCode.NEED_OWNER_OR_MANAGER_ROLE);
+            }
+
+            // Obtain the permissions of the target person
+            ResponseVO<GetRoleInGroupResp> roleInGroupOne = this.getRoleInGroup(req.getGroupId(), req.getMemberId(), req.getAppId());
+            if (!roleInGroupOne.isOk()) {
+                return roleInGroupOne;
+            }
+            memberRole = roleInGroupOne.getData();
+
+            // Only the APP admin can mute the group owner.
+            if (memberRole.getRole() == GroupMemberRoleEnum.OWNER.getCode()) {
+                throw new ApplicationException(GroupErrorCode.NEED_APP_ADMIN_ROLE);
+            }
+
+            // Group managers can only mute ordinary users.
+            if (isManager && memberRole.getRole() != GroupMemberRoleEnum.ORDINARY.getCode()) {
+                throw new ApplicationException(GroupErrorCode.NEED_OWNER_ROLE);
+            }
+        }
+
+        ImGroupMemberEntity imGroupMemberEntity = new ImGroupMemberEntity();
+        if (memberRole == null) {
+            // Obtain the permissions of the target person
+            ResponseVO<GetRoleInGroupResp> roleInGroupOne = this.getRoleInGroup(req.getGroupId(), req.getMemberId(), req.getAppId());
+            if (!roleInGroupOne.isOk()) {
+                return roleInGroupOne;
+            }
+            memberRole = roleInGroupOne.getData();
+        }
+
+        imGroupMemberEntity.setGroupMemberId(memberRole.getGroupMemberId());
+        if (req.getMuteDuration() > 0) {
+            imGroupMemberEntity.setSpeakDate(System.currentTimeMillis() + req.getMuteDuration());
+        } else {
+            imGroupMemberEntity.setSpeakDate(req.getMuteDuration());
+        }
+
+        int i = imGroupMemberMapper.updateById(imGroupMemberEntity);
+        return ResponseVO.successResponse();
+    }
+
 
 }

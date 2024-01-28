@@ -21,7 +21,7 @@ public enum GroupErrorCode implements ApplicationExceptionEnum {
 
     MEMBER_IS_NOT_IN_GROUP(40006, "This user is not in the group"),
 
-    NEED_OWNER_OR_MANAGER_ROLE(40007, "This operation is only allowed for group owners/managers"),
+    NEED_OWNER_OR_MANAGER_ROLE(40007, "This operation is only allowed for group owners or group managers"),
 
     NEED_APP_ADMIN_ROLE(40008, "This operation is only allowed for APP administrators"),
 

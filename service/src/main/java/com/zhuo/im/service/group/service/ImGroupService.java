@@ -25,4 +25,6 @@ public interface ImGroupService {
     public ResponseVO deleteGroup(DeleteGroupReq req);
 
     public ResponseVO transferGroup(TransferGroupReq req);
+
+    public ResponseVO muteGroup(MuteGroupReq req);
 }

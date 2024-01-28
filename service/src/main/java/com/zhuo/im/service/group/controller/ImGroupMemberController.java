@@ -52,4 +52,10 @@ public class ImGroupMemberController {
         return groupMemberService.updateGroupMember(req);
     }
 
+    @RequestMapping("/mute")
+    public ResponseVO speak(@RequestBody @Validated MuteGroupMemberReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupMemberService.muteGroupMember(req);
+    }
 }
