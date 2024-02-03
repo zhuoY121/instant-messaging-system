@@ -4,7 +4,7 @@ import com.zhuo.im.common.exception.ApplicationExceptionEnum;
 
 public enum UserErrorCode implements ApplicationExceptionEnum {
 
-    IMPORT_SIZE_BEYOND(20000,"The number of imports exceeds the upper limit"),
+    IMPORT_SIZE_EXCEED(20000,"The number of imports exceeds the upper limit"),
     USER_IS_NOT_EXIST(20001,"User does not exist"),
     SERVER_GET_USER_ERROR(20002,"Service failed to obtain user"),
     MODIFY_USER_ERROR(20003,"Update user failed"),

@@ -39,7 +39,7 @@
 	</properties>
 
 	<dependencies>
-		<!-- 日志框架 -->
+		<!-- logging framework -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -70,7 +70,7 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- protostuff依赖包 begin -->
+			<!-- protostuff begin -->
 			<dependency>
 				<groupId>com.dyuproject.protostuff</groupId>
 				<artifactId>protostuff-api</artifactId>
@@ -86,7 +86,7 @@
 				<artifactId>protostuff-runtime</artifactId>
 				<version>${protostuff-api}</version>
 			</dependency>
-			<!-- protostuff依赖包 end -->
+			<!-- protostuff  end -->
 
 			<!-- commons -->
 			<dependency>
@@ -134,7 +134,7 @@
 			<!--                <version>${mybatis-plus.version}</version>-->
 			<!--            </dependency>-->
 
-			<!-- 参数校验 -->
+			<!-- parameter validation -->
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-validator</artifactId>
@@ -182,7 +182,7 @@
 				<version>${netty.version}</version>
 			</dependency>
 
-			<!-- feign调用依赖 -->
+			<!-- feign -->
 			<dependency>
 				<groupId>com.netflix.feign</groupId>
 				<artifactId>feign-core</artifactId>

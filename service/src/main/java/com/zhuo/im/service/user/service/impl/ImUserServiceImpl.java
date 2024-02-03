@@ -5,6 +5,7 @@ import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.enums.DelFlagEnum;
 import com.zhuo.im.common.enums.UserErrorCode;
 import com.zhuo.im.common.exception.ApplicationException;
+import com.zhuo.im.service.user.constants.UserConstants;
 import com.zhuo.im.service.user.dao.ImUserDataEntity;
 import com.zhuo.im.service.user.dao.mapper.ImUserDataMapper;
 import com.zhuo.im.service.user.model.req.DeleteUserReq;
@@ -32,9 +33,8 @@ public class ImUserServiceImpl implements ImUserService {
     @Override
     public ResponseVO importUser(ImportUserReq req) {
 
-        if (req.getUserData().size() > 100) {
-            // TODO: return too many users
-
+        if (req.getUserData().size() > UserConstants.MAX_IMPORT_SIZE) {
+            return ResponseVO.errorResponse(UserErrorCode.IMPORT_SIZE_EXCEED);
         }
 
         List<String> successId =  new ArrayList<>();
