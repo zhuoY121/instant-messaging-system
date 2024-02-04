@@ -1,0 +1,6 @@
+tcpConfig:
+  tcpPort: 9000
+  webSocketPort: 19000
+  bossThreadSize: 1
+  workerThreadSize: 8
+
