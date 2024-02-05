@@ -1,6 +1,7 @@
 package com.zhuo.im.tcp;
 
 import com.zhuo.im.codec.config.BootstrapConfig;
+import com.zhuo.im.tcp.redis.RedisManager;
 import com.zhuo.im.tcp.server.ImServer;
 import org.yaml.snakeyaml.Yaml;
 
@@ -27,7 +28,9 @@ public class Starter {
 
             new ImServer(bootstrapConfig.getTcpConfig()).start();
 
-        }catch (Exception e){
+            RedisManager.init(bootstrapConfig);
+
+        } catch (Exception e){
             e.printStackTrace();
             System.exit(500);
         }

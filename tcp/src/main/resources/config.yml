@@ -4,3 +4,14 @@ tcpConfig:
   bossThreadSize: 1
   workerThreadSize: 8
 
+  redis:
+    mode: single # single / sentinel / cluster
+    database: 0
+    password:
+    timeout: 3000
+    poolMinIdle: 8 # Minimum idle number
+    poolConnTimeout: 3000 # Connection timeout (milliseconds)
+    poolSize: 10
+    single: # Configurations for the single mode
+      address: 127.0.0.1:6379
+
