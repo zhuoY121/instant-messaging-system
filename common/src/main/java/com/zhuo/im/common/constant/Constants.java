@@ -29,7 +29,7 @@ public class Constants {
 
     }
 
-    public static class RabbitConstants {
+    public static class RabbitmqConstants {
 
         public static final String Im2MessageService = "pipeline2MessageService";
 

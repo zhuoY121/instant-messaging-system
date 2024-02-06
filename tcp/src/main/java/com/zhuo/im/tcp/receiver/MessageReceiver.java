@@ -18,13 +18,13 @@ public class MessageReceiver {
 
     private static void startMessageReceiver() {
         try {
-            Channel channel = RabbitmqFactory.getChannel(Constants.RabbitConstants.MessageService2Im);
-            channel.queueDeclare(Constants.RabbitConstants.MessageService2Im,
+            Channel channel = RabbitmqFactory.getChannel(Constants.RabbitmqConstants.MessageService2Im);
+            channel.queueDeclare(Constants.RabbitmqConstants.MessageService2Im,
                     true, false, false, null
             );
-            channel.queueBind(Constants.RabbitConstants.MessageService2Im, Constants.RabbitConstants.MessageService2Im, "");
+            channel.queueBind(Constants.RabbitmqConstants.MessageService2Im, Constants.RabbitmqConstants.MessageService2Im, "");
 
-            channel.basicConsume(Constants.RabbitConstants.MessageService2Im, false,
+            channel.basicConsume(Constants.RabbitmqConstants.MessageService2Im, false,
                     new DefaultConsumer(channel) {
                         @Override
                         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
