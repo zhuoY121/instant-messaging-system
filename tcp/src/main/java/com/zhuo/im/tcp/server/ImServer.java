@@ -44,7 +44,7 @@ public class ImServer {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(new MessageDecoder());
-                        ch.pipeline().addLast(new IdleStateHandler(0, 0, 1));
+//                        ch.pipeline().addLast(new IdleStateHandler(0, 0, 1));
                         ch.pipeline().addLast(new HeartBeatHandler(tcpConfig.getHeartBeatTime()));
                         ch.pipeline().addLast(new NettyServerHandler());
                     }

@@ -11,9 +11,9 @@ public class RedisManager {
 
     private static RedissonClient redissonClient;
 
-    public static void init(BootstrapConfig config){
+    public static void init(BootstrapConfig.RedisConfig config){
         SingleClientStrategy singleClientStrategy = new SingleClientStrategy();
-        redissonClient = singleClientStrategy.getRedissonClient(config.getTcpConfig().getRedis());
+        redissonClient = singleClientStrategy.getRedissonClient(config);
     }
 
     public static RedissonClient getRedissonClient(){

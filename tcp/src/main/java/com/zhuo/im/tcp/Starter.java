@@ -1,8 +1,10 @@
 package com.zhuo.im.tcp;
 
 import com.zhuo.im.codec.config.BootstrapConfig;
+import com.zhuo.im.tcp.receiver.MessageReceiver;
 import com.zhuo.im.tcp.redis.RedisManager;
 import com.zhuo.im.tcp.server.ImServer;
+import com.zhuo.im.tcp.utils.RabbitmqFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileInputStream;
@@ -21,6 +23,7 @@ public class Starter {
     }
 
     private static void start(String path){
+
         try {
             Yaml yaml = new Yaml();
             InputStream inputStream = new FileInputStream(path);
@@ -28,12 +31,16 @@ public class Starter {
 
             new ImServer(bootstrapConfig.getTcpConfig()).start();
 
-            RedisManager.init(bootstrapConfig);
+            RedisManager.init(bootstrapConfig.getTcpConfig().getRedis());
+            RabbitmqFactory.init(bootstrapConfig.getTcpConfig().getRabbitmq());
+            MessageReceiver.init();
+
 
         } catch (Exception e){
             e.printStackTrace();
             System.exit(500);
         }
+
     }
 
 }

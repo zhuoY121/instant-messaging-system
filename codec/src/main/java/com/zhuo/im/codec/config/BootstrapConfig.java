@@ -25,6 +25,8 @@ public class BootstrapConfig {
 
         private RedisConfig redis;
 
+        private RabbitmqConfig rabbitmq;
+
     }
 
     @Data
@@ -65,4 +67,27 @@ public class BootstrapConfig {
 
         private String address;
     }
+
+
+    /**
+     * Sentinel mode configuration of rabbitmq
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RabbitmqConfig {
+
+        private String host;
+
+        private Integer port;
+
+        private String virtualHost;
+
+        private String userName;
+
+        private String password;
+    }
+
+
 }
