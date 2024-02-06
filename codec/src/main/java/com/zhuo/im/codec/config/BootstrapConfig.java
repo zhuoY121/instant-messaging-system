@@ -21,6 +21,8 @@ public class BootstrapConfig {
 
         private Integer workerThreadSize;
 
+        private Long heartBeatTime; // Heartbeat timeout in milliseconds
+
         private RedisConfig redis;
 
     }

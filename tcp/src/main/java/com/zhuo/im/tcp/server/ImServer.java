@@ -2,6 +2,7 @@ package com.zhuo.im.tcp.server;
 
 import com.zhuo.im.codec.MessageDecoder;
 import com.zhuo.im.codec.config.BootstrapConfig;
+import com.zhuo.im.tcp.handler.HeartBeatHandler;
 import com.zhuo.im.tcp.handler.NettyServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -10,6 +11,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,8 @@ public class ImServer {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(new MessageDecoder());
+                        ch.pipeline().addLast(new IdleStateHandler(0, 0, 1));
+                        ch.pipeline().addLast(new HeartBeatHandler(tcpConfig.getHeartBeatTime()));
                         ch.pipeline().addLast(new NettyServerHandler());
                     }
                 });

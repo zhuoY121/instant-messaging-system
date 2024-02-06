@@ -10,6 +10,8 @@ public enum SystemCommand implements Command {
     // logout  9003
     LOGOUT(0x232b),
 
+    // heart beat 9999
+    PING(0x270f),
     ;
 
     private int command;

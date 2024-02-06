@@ -3,6 +3,7 @@ tcpConfig:
   webSocketPort: 19000
   bossThreadSize: 1
   workerThreadSize: 8
+  heartBeatTime: 3000 # Heartbeat timeout in milliseconds
 
   redis:
     mode: single # single / sentinel / cluster

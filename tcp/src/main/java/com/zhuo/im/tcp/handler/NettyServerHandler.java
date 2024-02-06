@@ -59,25 +59,10 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             SessionSocketHolder.put(userClientDto, (NioSocketChannel) ctx.channel());
 
         } else if (command == SystemCommand.LOGOUT.getCommand()) {
-            // Get the user info from the channel context
-            String userId = (String) ctx.channel().attr(AttributeKey.valueOf(Constants.UserId)).get();
-            Integer appId = (Integer) ctx.channel().attr(AttributeKey.valueOf(Constants.AppId)).get();
-            Integer clientType = (Integer) ctx.channel().attr(AttributeKey.valueOf(Constants.ClientType)).get();
+            SessionSocketHolder.removeUserSession((NioSocketChannel) ctx.channel());
 
-            // Remove from Sessions
-            UserClientDto userClientDto = new UserClientDto();
-            userClientDto.setUserId(userId);
-            userClientDto.setAppId(appId);
-            userClientDto.setClientType(clientType);
-            SessionSocketHolder.remove(userClientDto);
-
-            // Remove from Redis
-            RedissonClient redissonClient = RedisManager.getRedissonClient();
-            RMap<Object, Object> map = redissonClient.getMap(appId + Constants.RedisConstants.UserSessionConstants + userId);
-            map.remove(clientType);
-
-            // Close the channel
-            ctx.channel().close();
+        } else if (command == SystemCommand.PING.getCommand()) {
+            ctx.channel().attr(AttributeKey.valueOf(Constants.ReadTime)).set(System.currentTimeMillis());
         }
 
     }

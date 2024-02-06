@@ -14,12 +14,14 @@ public class Constants {
 
     public static final String ClientType = "clientType";
 
+    public static final String ReadTime = "readTime";
+
     public static class RedisConstants{
 
 
         /**
          * User session
-         * Format: appId + UserSessionConstants + 用户id.
+         * Format: appId + UserSessionConstants + userId.
          * For example, 10000:userSession:zhuo
          */
         public static final String UserSessionConstants = ":userSession:";
