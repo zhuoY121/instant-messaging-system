@@ -7,6 +7,7 @@ import com.rabbitmq.client.Envelope;
 import com.zhuo.im.common.constant.Constants;
 import com.zhuo.im.tcp.utils.RabbitmqFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @description:
@@ -15,16 +16,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MessageReceiver {
 
+    private static String brokerId;
 
     private static void startMessageReceiver() {
         try {
-            Channel channel = RabbitmqFactory.getChannel(Constants.RabbitmqConstants.MessageService2Im);
-            channel.queueDeclare(Constants.RabbitmqConstants.MessageService2Im,
+            Channel channel = RabbitmqFactory.getChannel(Constants.RabbitmqConstants.MessageService2Im + brokerId);
+            channel.queueDeclare(Constants.RabbitmqConstants.MessageService2Im  + brokerId,
                     true, false, false, null
             );
-            channel.queueBind(Constants.RabbitmqConstants.MessageService2Im, Constants.RabbitmqConstants.MessageService2Im, "");
+            channel.queueBind(Constants.RabbitmqConstants.MessageService2Im + brokerId, Constants.RabbitmqConstants.MessageService2Im, brokerId);
 
-            channel.basicConsume(Constants.RabbitmqConstants.MessageService2Im, false,
+            channel.basicConsume(Constants.RabbitmqConstants.MessageService2Im + brokerId, false,
                     new DefaultConsumer(channel) {
                         @Override
                         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
@@ -44,5 +46,11 @@ public class MessageReceiver {
         startMessageReceiver();
     }
 
+    public static void init(String brokerId) {
+        if (StringUtils.isBlank(MessageReceiver.brokerId)) {
+            MessageReceiver.brokerId = brokerId;
+        }
+        startMessageReceiver();
+    }
 
 }

@@ -29,6 +29,9 @@ public class BootstrapConfig {
 
         private ZkConfig zkConfig;
 
+        // brokerId in RabbitMQ
+        private Integer brokerId;
+
     }
 
     @Data

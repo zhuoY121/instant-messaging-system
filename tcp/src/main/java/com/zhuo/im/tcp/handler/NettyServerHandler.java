@@ -19,7 +19,15 @@ import io.netty.util.AttributeKey;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 
+import java.net.InetAddress;
+
 public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
+
+    private Integer brokerId;
+
+    public NettyServerHandler(Integer brokerId) {
+        this.brokerId = brokerId;
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
@@ -45,6 +53,13 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             userSession.setClientType(msg.getMessageHeader().getClientType());
             userSession.setUserId(loginPack.getUserId());
             userSession.setConnectState(ImConnectStatusEnum.ONLINE.getCode());
+            userSession.setBrokerId(brokerId);
+            try {
+                InetAddress localHost = InetAddress.getLocalHost();
+                userSession.setBrokerHost(localHost.getHostAddress());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             // Save to redis
             RedissonClient redissonClient = RedisManager.getRedissonClient();

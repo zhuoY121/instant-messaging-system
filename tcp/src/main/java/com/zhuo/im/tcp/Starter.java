@@ -38,7 +38,7 @@ public class Starter {
 
             RedisManager.init(bootstrapConfig.getTcpConfig().getRedis());
             RabbitmqFactory.init(bootstrapConfig.getTcpConfig().getRabbitmq());
-            MessageReceiver.init();
+            MessageReceiver.init(bootstrapConfig.getTcpConfig().getBrokerId()+"");
             registerZK(bootstrapConfig.getTcpConfig());
 
 
