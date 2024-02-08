@@ -27,6 +27,8 @@ public class BootstrapConfig {
 
         private RabbitmqConfig rabbitmq;
 
+        private ZkConfig zkConfig;
+
     }
 
     @Data
@@ -89,5 +91,14 @@ public class BootstrapConfig {
         private String password;
     }
 
+    @Data
+    public static class ZkConfig {
+
+        // Zookeeper connection address
+        private String zkAddr;
+
+        // Connection timeout
+        private Integer zkConnectTimeOut;
+    }
 
 }
