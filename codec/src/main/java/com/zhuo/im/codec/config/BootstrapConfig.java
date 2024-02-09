@@ -23,6 +23,8 @@ public class BootstrapConfig {
 
         private Long heartBeatTime; // Heartbeat timeout in milliseconds
 
+        private Integer loginMode;
+
         private RedisConfig redis;
 
         private RabbitmqConfig rabbitmq;

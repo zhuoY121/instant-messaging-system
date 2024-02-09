@@ -1,6 +1,7 @@
 package com.zhuo.im.tcp.server;
 
 import com.zhuo.im.codec.MessageDecoder;
+import com.zhuo.im.codec.MessageEncoder;
 import com.zhuo.im.codec.config.BootstrapConfig;
 import com.zhuo.im.tcp.handler.HeartBeatHandler;
 import com.zhuo.im.tcp.handler.NettyServerHandler;
@@ -44,6 +45,7 @@ public class ImServer {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(new MessageDecoder());
+                        ch.pipeline().addLast(new MessageEncoder());
 //                        ch.pipeline().addLast(new IdleStateHandler(0, 0, 1));
                         ch.pipeline().addLast(new HeartBeatHandler(tcpConfig.getHeartBeatTime()));
                         ch.pipeline().addLast(new NettyServerHandler(tcpConfig.getBrokerId()));

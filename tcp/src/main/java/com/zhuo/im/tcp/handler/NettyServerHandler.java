@@ -17,6 +17,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import org.redisson.api.RMap;
+import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 
 import java.net.InetAddress;
@@ -46,6 +47,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             ctx.channel().attr(AttributeKey.valueOf(Constants.UserId)).set(loginPack.getUserId());
             ctx.channel().attr(AttributeKey.valueOf(Constants.AppId)).set(msg.getMessageHeader().getAppId());
             ctx.channel().attr(AttributeKey.valueOf(Constants.ClientType)).set(msg.getMessageHeader().getClientType());
+            ctx.channel().attr(AttributeKey.valueOf(Constants.Imei)).set(msg.getMessageHeader().getImei());
 
             // Create the user session
             UserSession userSession = new UserSession();
@@ -64,14 +66,21 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             // Save to redis
             RedissonClient redissonClient = RedisManager.getRedissonClient();
             RMap<String, String> map = redissonClient.getMap(msg.getMessageHeader().getAppId() + Constants.RedisConstants.UserSessionConstants + loginPack.getUserId());
-            map.put(msg.getMessageHeader().getClientType() + "", JSONObject.toJSONString(userSession));
+            map.put(msg.getMessageHeader().getClientType() + ":" + msg.getMessageHeader().getImei(), JSONObject.toJSONString(userSession));
 
-            // Save the user session
+            // Create userClientDto
             UserClientDto userClientDto = new UserClientDto();
             userClientDto.setAppId(msg.getMessageHeader().getAppId());
             userClientDto.setUserId(loginPack.getUserId());
             userClientDto.setClientType(msg.getMessageHeader().getClientType());
+            userClientDto.setImei(msg.getMessageHeader().getImei());
+
+            // Save the user session
             SessionSocketHolder.put(userClientDto, (NioSocketChannel) ctx.channel());
+
+            // Publish login topic
+            RTopic topic = redissonClient.getTopic(Constants.RedisConstants.UserLoginChannel);
+            topic.publish(JSONObject.toJSONString(userClientDto));
 
         } else if (command == SystemCommand.LOGOUT.getCommand()) {
             SessionSocketHolder.removeUserSession((NioSocketChannel) ctx.channel());

@@ -13,7 +13,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -32,6 +35,20 @@ public class SessionSocketHolder {
         return CHANNELS.get(dto);
     }
 
+    public static List<NioSocketChannel> getAll(Integer appId, String userId) {
+
+        Set<UserClientDto> channelInfos = CHANNELS.keySet();
+        List<NioSocketChannel> channels = new ArrayList<>();
+
+        channelInfos.forEach(channel -> {
+            if(channel.getAppId().equals(appId) && userId.equals(channel.getUserId())){
+                channels.add(CHANNELS.get(channel));
+            }
+        });
+
+        return channels;
+    }
+
     public static void remove(UserClientDto dto){
         CHANNELS.remove(dto);
     }
@@ -47,18 +64,20 @@ public class SessionSocketHolder {
         String userId = (String) nioSocketChannel.attr(AttributeKey.valueOf(Constants.UserId)).get();
         Integer appId = (Integer) nioSocketChannel.attr(AttributeKey.valueOf(Constants.AppId)).get();
         Integer clientType = (Integer) nioSocketChannel.attr(AttributeKey.valueOf(Constants.ClientType)).get();
+        String imei = (String) nioSocketChannel.attr(AttributeKey.valueOf(Constants.Imei)).get();
 
         // Remove from Sessions
         UserClientDto userClientDto = new UserClientDto();
         userClientDto.setUserId(userId);
         userClientDto.setAppId(appId);
         userClientDto.setClientType(clientType);
+        userClientDto.setImei(imei);
         SessionSocketHolder.remove(userClientDto);
 
         // Remove from Redis
         RedissonClient redissonClient = RedisManager.getRedissonClient();
         RMap<Object, Object> map = redissonClient.getMap(appId + Constants.RedisConstants.UserSessionConstants + userId);
-        map.remove(clientType);
+        map.remove(clientType + ":" + imei);
 
         // Close the channel
         nioSocketChannel.close();
@@ -69,11 +88,13 @@ public class SessionSocketHolder {
         String userId = (String) nioSocketChannel.attr(AttributeKey.valueOf(Constants.UserId)).get();
         Integer appId = (Integer) nioSocketChannel.attr(AttributeKey.valueOf(Constants.AppId)).get();
         Integer clientType = (Integer) nioSocketChannel.attr(AttributeKey.valueOf(Constants.ClientType)).get();
+        String imei = (String) nioSocketChannel.attr(AttributeKey.valueOf(Constants.Imei)).get();
 
         UserClientDto userClientDto = new UserClientDto();
         userClientDto.setUserId(userId);
         userClientDto.setAppId(appId);
         userClientDto.setClientType(clientType);
+        userClientDto.setImei(imei);
         SessionSocketHolder.remove(userClientDto);
 
         RedissonClient redissonClient = RedisManager.getRedissonClient();
@@ -83,7 +104,7 @@ public class SessionSocketHolder {
         if (StringUtils.isNotBlank(sessionStr)) {
             UserSession userSession = JSONObject.parseObject(sessionStr, UserSession.class);
             userSession.setConnectState(ImConnectStatusEnum.OFFLINE.getCode());
-            map.put(clientType.toString(), JSONObject.toJSONString(userSession));
+            map.put(clientType.toString() + ":" + imei, JSONObject.toJSONString(userSession));
         }
 
     }

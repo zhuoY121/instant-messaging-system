@@ -5,6 +5,8 @@ tcpConfig:
   workerThreadSize: 8
   heartBeatTime: 20000 # Heartbeat timeout in milliseconds
   brokerId: 1000
+  loginMode: 2
+
 
   redis:
     mode: single # single / sentinel / cluster

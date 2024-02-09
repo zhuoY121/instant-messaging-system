@@ -12,6 +12,9 @@ public enum SystemCommand implements Command {
 
     // heart beat 9999
     PING(0x270f),
+
+    // Offline notification used to handle multi-client login. 9002
+    MULTI_CLIENT_LOGIN(0x232a),
     ;
 
     private int command;

@@ -36,7 +36,7 @@ public class Starter {
 
             new ImServer(bootstrapConfig.getTcpConfig()).start();
 
-            RedisManager.init(bootstrapConfig.getTcpConfig().getRedis());
+            RedisManager.init(bootstrapConfig.getTcpConfig());
             RabbitmqFactory.init(bootstrapConfig.getTcpConfig().getRabbitmq());
             MessageReceiver.init(bootstrapConfig.getTcpConfig().getBrokerId()+"");
             registerZK(bootstrapConfig.getTcpConfig());

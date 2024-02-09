@@ -14,6 +14,8 @@ public class Constants {
 
     public static final String ClientType = "clientType";
 
+    public static final String Imei = "imei";
+
     public static final String ReadTime = "readTime";
 
     public static final String ImCoreZkRoot = "/im-coreRoot";
@@ -32,6 +34,11 @@ public class Constants {
          * For example, 10000:userSession:zhuo
          */
         public static final String UserSessionConstants = ":userSession:";
+
+        /**
+         * User login notification channel
+         */
+        public static final String UserLoginChannel = "signal/channel/LOGIN_USER_INNER_QUEUE";
 
 
     }
