@@ -2,6 +2,8 @@ package com.zhuo.im.service.config;
 
 import com.zhuo.im.common.config.AppConfig;
 import com.zhuo.im.common.route.RouteHandler;
+import com.zhuo.im.common.route.algorithm.consistenthash.ConsistentHashHandler;
+import com.zhuo.im.common.route.algorithm.consistenthash.TreeMapConsistentHash;
 import com.zhuo.im.common.route.algorithm.roundRobin.RoundRobinHandler;
 import org.I0Itec.zkclient.ZkClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,12 @@ public class BeanConfig {
     @Bean
     public RouteHandler routerHandler() {
 //        return new RandomHandler();
-        return new RoundRobinHandler();
+//        return new RoundRobinHandler();
+
+        ConsistentHashHandler consistentHashHandler = new ConsistentHashHandler();
+        TreeMapConsistentHash treeMapConsistentHash = new TreeMapConsistentHash();
+        consistentHashHandler.setHash(treeMapConsistentHash);
+        return consistentHashHandler;
     }
 
 
