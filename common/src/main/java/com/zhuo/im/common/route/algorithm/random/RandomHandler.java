@@ -17,7 +17,7 @@ public class RandomHandler implements RouteHandler {
     public String routeServer(List<String> values, String key) {
         int size = values.size();
         if(size == 0){
-            throw new ApplicationException(UserErrorCode.SERVER_NOT_AVAILABLE);
+            throw new ApplicationException(UserErrorCode.SERVICE_NOT_AVAILABLE);
         }
         int i = ThreadLocalRandom.current().nextInt(size);
         return values.get(i);

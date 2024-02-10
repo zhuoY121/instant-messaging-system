@@ -95,7 +95,7 @@ public class ImUserServiceImpl implements ImUserService {
 
         ImUserDataEntity ImUserDataEntity = imUserDataMapper.selectOne(objectQueryWrapper);
         if(ImUserDataEntity == null){
-            return ResponseVO.errorResponse(UserErrorCode.USER_IS_NOT_EXIST);
+            return ResponseVO.errorResponse(UserErrorCode.USER_NOT_EXIST);
         }
 
         return ResponseVO.successResponse(ImUserDataEntity);
@@ -143,7 +143,7 @@ public class ImUserServiceImpl implements ImUserService {
         query.eq("del_flag",DelFlagEnum.NORMAL.getCode());
         ImUserDataEntity user = imUserDataMapper.selectOne(query);
         if(user == null){
-            throw new ApplicationException(UserErrorCode.USER_IS_NOT_EXIST);
+            throw new ApplicationException(UserErrorCode.USER_NOT_EXIST);
         }
 
         ImUserDataEntity update = new ImUserDataEntity();

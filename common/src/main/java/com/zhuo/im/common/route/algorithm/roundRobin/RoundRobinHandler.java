@@ -18,8 +18,8 @@ public class RoundRobinHandler implements RouteHandler {
     @Override
     public String routeServer(List<String> values, String key) {
         int size = values.size();
-        if(size == 0){
-            throw new ApplicationException(UserErrorCode.SERVER_NOT_AVAILABLE);
+        if (size == 0) {
+            throw new ApplicationException(UserErrorCode.SERVICE_NOT_AVAILABLE);
         }
         Long l = index.incrementAndGet() % size;
         if (l < 0){
