@@ -20,4 +20,7 @@ public class AppConfig {
 
     private Integer consistentHashingMethod;
 
+    private String callbackUrl;
+
+
 }

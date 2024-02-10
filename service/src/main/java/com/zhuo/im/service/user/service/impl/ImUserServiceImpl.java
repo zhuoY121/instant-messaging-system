@@ -1,7 +1,10 @@
 package com.zhuo.im.service.user.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.config.AppConfig;
+import com.zhuo.im.common.constant.Constants;
 import com.zhuo.im.common.enums.DelFlagEnum;
 import com.zhuo.im.common.enums.UserErrorCode;
 import com.zhuo.im.common.exception.ApplicationException;
@@ -12,6 +15,7 @@ import com.zhuo.im.service.user.model.req.*;
 import com.zhuo.im.service.user.model.resp.GetUserInfoResp;
 import com.zhuo.im.service.user.model.resp.ImportUserResp;
 import com.zhuo.im.service.user.service.ImUserService;
+import com.zhuo.im.service.utils.CallbackService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

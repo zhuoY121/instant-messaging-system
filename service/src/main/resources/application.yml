@@ -29,6 +29,16 @@ appConfig:
   imRoutingMethod: 3 # IM-sys routing Method: 1 random; 2 round-robin; 3 consistent hashing
   # If we choose consistent hashing as the routing algorithm, we need to determine which hash algorithm to use
   consistentHashingMethod: 1  # 1 TreeMap; 2 Custom Map
+  callbackUrl: http://127.0.0.1:8000/callback
+
+httpclient:
+  maxTotal: 100
+  defaultMaxPerRoute: 50
+  connectionTimeout: 2000
+  connectionRequestTimeout: 2000
+  socketTimeout: 5000
+  staleConnectionCheckEnabled: true
+
 
 mybatis-plus:
   configuration:
@@ -42,10 +52,4 @@ mybatis-plus:
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-httpclient:
-  maxTotal: 100
-  defaultMaxPerRoute: 50
-  connectTimeout: 2000
-  connectionRequestTimeout: 2000
-  socketTimeout: 5000
-  staleConnectionCheckEnabled: true
+

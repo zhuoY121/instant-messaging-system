@@ -9,7 +9,7 @@ import com.zhuo.im.common.route.RouteInfo;
  *
  * @since JDK 1.8
  */
-public class RouteInfoParseUtil {
+public class RouteInfoParseUtils {
 
     public static RouteInfo parse(String info) {
         try {

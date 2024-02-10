@@ -4,7 +4,7 @@ import com.zhuo.im.common.ClientType;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.route.RouteHandler;
 import com.zhuo.im.common.route.RouteInfo;
-import com.zhuo.im.common.utils.RouteInfoParseUtil;
+import com.zhuo.im.common.utils.RouteInfoParseUtils;
 import com.zhuo.im.service.user.model.req.ImportUserReq;
 import com.zhuo.im.service.user.model.req.LoginReq;
 import com.zhuo.im.service.user.service.ImUserService;
@@ -59,7 +59,7 @@ public class ImUserController {
 
         // ip:port
         String s = routeHandler.routeServer(nodes, req.getUserId());
-        RouteInfo parse = RouteInfoParseUtil.parse(s);
+        RouteInfo parse = RouteInfoParseUtils.parse(s);
         return ResponseVO.successResponse(parse);
     }
 
