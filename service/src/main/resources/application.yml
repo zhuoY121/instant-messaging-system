@@ -23,6 +23,9 @@ logging:
 server:
   port: 8000
 
+appConfig:
+  zkAddr: 127.0.0.1:2181
+  zkConnectTimeOut: 50000
 
 mybatis-plus:
   configuration:

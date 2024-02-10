@@ -2,10 +2,7 @@ package com.zhuo.im.service.user.service;
 
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.service.user.dao.ImUserDataEntity;
-import com.zhuo.im.service.user.model.req.DeleteUserReq;
-import com.zhuo.im.service.user.model.req.GetUserInfoReq;
-import com.zhuo.im.service.user.model.req.ImportUserReq;
-import com.zhuo.im.service.user.model.req.ModifyUserInfoReq;
+import com.zhuo.im.service.user.model.req.*;
 import com.zhuo.im.service.user.model.resp.GetUserInfoResp;
 
 public interface ImUserService {
@@ -19,5 +16,7 @@ public interface ImUserService {
     public ResponseVO deleteUser(DeleteUserReq req);
 
     public ResponseVO modifyUserInfo(ModifyUserInfoReq req);
+
+    public ResponseVO login(LoginReq req);
 
 }

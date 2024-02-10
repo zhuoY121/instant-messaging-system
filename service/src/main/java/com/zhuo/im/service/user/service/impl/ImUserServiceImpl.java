@@ -8,10 +8,7 @@ import com.zhuo.im.common.exception.ApplicationException;
 import com.zhuo.im.service.user.constants.UserConstants;
 import com.zhuo.im.service.user.dao.ImUserDataEntity;
 import com.zhuo.im.service.user.dao.mapper.ImUserDataMapper;
-import com.zhuo.im.service.user.model.req.DeleteUserReq;
-import com.zhuo.im.service.user.model.req.GetUserInfoReq;
-import com.zhuo.im.service.user.model.req.ImportUserReq;
-import com.zhuo.im.service.user.model.req.ModifyUserInfoReq;
+import com.zhuo.im.service.user.model.req.*;
 import com.zhuo.im.service.user.model.resp.GetUserInfoResp;
 import com.zhuo.im.service.user.model.resp.ImportUserResp;
 import com.zhuo.im.service.user.service.ImUserService;
@@ -159,6 +156,11 @@ public class ImUserServiceImpl implements ImUserService {
             return ResponseVO.successResponse();
         }
         throw new ApplicationException(UserErrorCode.MODIFY_USER_ERROR);
+    }
+
+    @Override
+    public ResponseVO login(LoginReq req) {
+        return ResponseVO.successResponse();
     }
 
 }
