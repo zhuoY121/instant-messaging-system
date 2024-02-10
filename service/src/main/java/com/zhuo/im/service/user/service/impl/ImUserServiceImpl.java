@@ -31,6 +31,12 @@ public class ImUserServiceImpl implements ImUserService {
     @Autowired
     ImUserDataMapper imUserDataMapper;
 
+    @Autowired
+    AppConfig appConfig;
+
+    @Autowired
+    CallbackService callbackService;
+
     @Override
     public ResponseVO importUser(ImportUserReq req) {
 
@@ -157,6 +163,12 @@ public class ImUserServiceImpl implements ImUserService {
         update.setUserId(null);
         int update1 = imUserDataMapper.update(update, query);
         if(update1 == 1){
+            
+            // Callback
+            if (appConfig.isModifyUserAfterCallback()) {
+                callbackService.callback(req.getAppId(), Constants.CallbackCommand.ModifyUserAfter, JSONObject.toJSONString(req));
+            }
+
             return ResponseVO.successResponse();
         }
         throw new ApplicationException(UserErrorCode.MODIFY_USER_ERROR);

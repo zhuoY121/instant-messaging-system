@@ -30,6 +30,7 @@ appConfig:
   # If we choose consistent hashing as the routing algorithm, we need to determine which hash algorithm to use
   consistentHashingMethod: 1  # 1 TreeMap; 2 Custom Map
   callbackUrl: http://127.0.0.1:8000/callback
+  modifyUserAfterCallback: false # Callback switch after user information changes
 
 httpclient:
   maxTotal: 100

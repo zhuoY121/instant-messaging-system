@@ -33,8 +33,8 @@ public class GlobalHttpClientConfig {
 			return manager;
 		}
 		manager = new PoolingHttpClientConnectionManager();
-		manager.setMaxTotal(maxTotal); // 设定最大链接数
-		manager.setDefaultMaxPerRoute(defaultMaxPerRoute); // 设定并发链接数
+		manager.setMaxTotal(maxTotal);
+		manager.setDefaultMaxPerRoute(defaultMaxPerRoute);
 		return manager;
 	}
 

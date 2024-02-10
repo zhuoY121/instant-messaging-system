@@ -51,4 +51,9 @@ public class Constants {
     }
 
 
+    public static class CallbackCommand {
+
+        public static final String ModifyUserAfter = "user.modify.after";
+    }
+
 }

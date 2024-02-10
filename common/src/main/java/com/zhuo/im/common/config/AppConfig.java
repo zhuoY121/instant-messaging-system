@@ -22,5 +22,6 @@ public class AppConfig {
 
     private String callbackUrl;
 
+    private boolean modifyUserAfterCallback;
 
 }
