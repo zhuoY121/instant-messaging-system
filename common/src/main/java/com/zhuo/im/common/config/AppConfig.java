@@ -16,4 +16,8 @@ public class AppConfig {
 
     private Integer zkConnectTimeOut;
 
+    private Integer imRoutingMethod;
+
+    private Integer consistentHashingMethod;
+
 }

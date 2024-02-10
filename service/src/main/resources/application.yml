@@ -26,6 +26,9 @@ server:
 appConfig:
   zkAddr: 127.0.0.1:2181
   zkConnectTimeOut: 50000
+  imRoutingMethod: 3 # IM-sys routing Method: 1 random; 2 round-robin; 3 consistent hashing
+  # If we choose consistent hashing as the routing algorithm, we need to determine which hash algorithm to use
+  consistentHashingMethod: 1  # 1 TreeMap; 2 Custom Map
 
 mybatis-plus:
   configuration:
