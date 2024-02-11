@@ -66,6 +66,18 @@ public class Constants {
         public static final String AddBlackAfter = "black.add.after";
 
         public static final String DeleteBlackAfter = "black.delete.after";
+
+        public static final String CreateGroupAfter = "group.create.after";
+
+        public static final String UpdateGroupAfter = "group.update.after";
+
+        public static final String DeleteGroupAfter = "group.delete.after";
+
+        public static final String AddGroupMemberBefore = "group.member.add.before";
+
+        public static final String AddGroupMemberAfter = "group.member.add.after";
+
+        public static final String DeleteGroupMemberAfter = "group.member.delete.after";
     }
 
 }

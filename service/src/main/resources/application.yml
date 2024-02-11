@@ -29,7 +29,7 @@ appConfig:
   imRoutingMethod: 3 # IM-sys routing Method: 1 random; 2 round-robin; 3 consistent hashing
   # If we choose consistent hashing as the routing algorithm, we need to determine which hash algorithm to use
   consistentHashingMethod: 1  # 1 TreeMap; 2 Custom Map
-  callbackUrl: http://127.0.0.1:8000/callback
+  callbackUrl: http://127.0.0.1:8989/callback
   modifyUserAfterCallback: false # Callback switch after user information changes
   addFriendAfterCallback: false # Callback switch after adding friends
   addFriendBeforeCallback: false # Callback switch before adding friends
@@ -37,13 +37,18 @@ appConfig:
   deleteFriendAfterCallback: false # Callback switch after deleting friends
   addFriendShipBlackAfterCallback: false # Callback switch after adding blacklist
   deleteFriendShipBlackAfterCallback: false # Callback switch after deleting the blacklist
-
+  createGroupAfterCallback: false # Callback switch after creating group chat
+  modifyGroupAfterCallback: false # Callback switch after modifying group chat
+  deleteGroupAfterCallback: false # Callback switch after disbanding group chat
+  deleteGroupMemberAfterCallback: false # Callback after deleting group members
+  addGroupMemberAfterCallback: false # Callback after adding people to the group
+  addGroupMemberBeforeCallback: false # Callback before adding people to the group
 
 
 httpclient:
   maxTotal: 100
   defaultMaxPerRoute: 50
-  connectionTimeout: 2000
+  connectTimeout: 2000
   connectionRequestTimeout: 2000
   socketTimeout: 5000
   staleConnectionCheckEnabled: true

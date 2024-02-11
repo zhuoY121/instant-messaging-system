@@ -36,4 +36,16 @@ public class AppConfig {
 
     private boolean deleteFriendShipBlackAfterCallback;
 
+    private boolean createGroupAfterCallback;
+
+    private boolean modifyGroupAfterCallback;
+
+    private boolean deleteGroupAfterCallback;
+
+    private boolean deleteGroupMemberAfterCallback;
+
+    private boolean addGroupMemberBeforeCallback;
+
+    private boolean addGroupMemberAfterCallback;
+
 }
