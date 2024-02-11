@@ -24,4 +24,16 @@ public class AppConfig {
 
     private boolean modifyUserAfterCallback;
 
+    private boolean addFriendAfterCallback;
+
+    private boolean addFriendBeforeCallback;
+
+    private boolean modifyFriendAfterCallback;
+
+    private boolean deleteFriendAfterCallback;
+
+    private boolean addFriendShipBlackAfterCallback;
+
+    private boolean deleteFriendShipBlackAfterCallback;
+
 }

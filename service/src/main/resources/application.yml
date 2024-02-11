@@ -31,6 +31,14 @@ appConfig:
   consistentHashingMethod: 1  # 1 TreeMap; 2 Custom Map
   callbackUrl: http://127.0.0.1:8000/callback
   modifyUserAfterCallback: false # Callback switch after user information changes
+  addFriendAfterCallback: false # Callback switch after adding friends
+  addFriendBeforeCallback: false # Callback switch before adding friends
+  modifyFriendAfterCallback: false # Callback switch after modifying friends
+  deleteFriendAfterCallback: false # Callback switch after deleting friends
+  addFriendShipBlackAfterCallback: false # Callback switch after adding blacklist
+  deleteFriendShipBlackAfterCallback: false # Callback switch after deleting the blacklist
+
+
 
 httpclient:
   maxTotal: 100

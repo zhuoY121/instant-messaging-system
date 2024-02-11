@@ -54,6 +54,18 @@ public class Constants {
     public static class CallbackCommand {
 
         public static final String ModifyUserAfter = "user.modify.after";
+
+        public static final String AddFriendBefore = "friend.add.before";
+
+        public static final String AddFriendAfter = "friend.add.after";
+
+        public static final String UpdateFriendAfter = "friend.update.after";
+
+        public static final String DeleteFriendAfter = "friend.delete.after";
+
+        public static final String AddBlackAfter = "black.add.after";
+
+        public static final String DeleteBlackAfter = "black.delete.after";
     }
 
 }

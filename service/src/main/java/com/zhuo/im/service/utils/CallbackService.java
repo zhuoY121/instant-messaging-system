@@ -43,12 +43,12 @@ public class CallbackService {
             return responseVO;
         } catch (Exception e){
             logger.error("Callback before {}: {}. Exception occurred: {}",callbackCommand , appId, e.getMessage());
-            return ResponseVO.successResponse();
+            return ResponseVO.errorResponse();
         }
     }
 
-    public Map builderUrlParams(Integer appId, String command) {
-        Map map = new HashMap();
+    public Map<String, Object> builderUrlParams(Integer appId, String command) {
+        Map<String, Object> map = new HashMap<>();
         map.put("appId", appId);
         map.put("command", command);
         return map;

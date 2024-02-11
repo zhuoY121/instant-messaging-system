@@ -1,14 +1,18 @@
 package com.zhuo.im.service.friendship.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.config.AppConfig;
+import com.zhuo.im.common.constant.Constants;
 import com.zhuo.im.common.enums.AllowFriendTypeEnum;
 import com.zhuo.im.common.enums.CheckFriendshipTypeEnum;
 import com.zhuo.im.common.enums.FriendshipErrorCode;
 import com.zhuo.im.common.enums.FriendshipStatusEnum;
 import com.zhuo.im.service.friendship.dao.ImFriendshipEntity;
 import com.zhuo.im.service.friendship.dao.mapper.ImFriendshipMapper;
+import com.zhuo.im.service.friendship.model.callback.*;
 import com.zhuo.im.service.friendship.model.req.*;
 import com.zhuo.im.service.friendship.model.resp.CheckFriendshipResp;
 import com.zhuo.im.service.friendship.model.resp.ImportFriendshipResp;
@@ -16,6 +20,7 @@ import com.zhuo.im.service.friendship.service.ImFriendshipRequestService;
 import com.zhuo.im.service.friendship.service.ImFriendshipService;
 import com.zhuo.im.service.user.dao.ImUserDataEntity;
 import com.zhuo.im.service.user.service.ImUserService;
+import com.zhuo.im.service.utils.CallbackService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +48,12 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
 
     @Autowired
     ImFriendshipRequestService imFriendshipRequestService;
+
+    @Autowired
+    AppConfig appConfig;
+
+    @Autowired
+    CallbackService callbackService;
 
     @Override
     public ResponseVO importFriendship(ImportFriendshipReq req) {
@@ -95,6 +106,14 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
             return toInfo;
         }
 
+        // Before callback
+        if (appConfig.isAddFriendBeforeCallback()) {
+            ResponseVO responseVO = callbackService.beforeCallback(req.getAppId(), Constants.CallbackCommand.AddFriendBefore, JSONObject.toJSONString(req));
+            if (!responseVO.isOk()) {
+                return responseVO;
+            }
+        }
+
         ImUserDataEntity data = toInfo.getData();
         if (data.getFriendAllowType() != null && data.getFriendAllowType() == AllowFriendTypeEnum.NO_NEED.getCode()) {
             return this.doAddFriendship(req.getFromId(), req.getToItem(), req.getAppId());
@@ -143,6 +162,15 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
             } else {
                 return ResponseVO.errorResponse(FriendshipErrorCode.FRIEND_IS_DELETED);
             }
+        }
+
+        // After callback
+        if (appConfig.isDeleteFriendAfterCallback()) {
+            DeleteFriendAfterCallbackDto callbackDto = new DeleteFriendAfterCallbackDto();
+            callbackDto.setFromId(req.getFromId());
+            callbackDto.setToId(req.getToId());
+
+            callbackService.callback(req.getAppId(), Constants.CallbackCommand.DeleteFriendAfter, JSONObject.toJSONString(callbackDto));
         }
 
         return ResponseVO.successResponse();
@@ -265,6 +293,15 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
             }
         }
 
+        // After callback
+        if (appConfig.isAddFriendShipBlackAfterCallback()) {
+            AddFriendBlackAfterCallbackDto callbackDto = new AddFriendBlackAfterCallbackDto();
+            callbackDto.setFromId(req.getFromId());
+            callbackDto.setToId(req.getToId());
+
+            callbackService.callback(req.getAppId(), Constants.CallbackCommand.AddBlackAfter, JSONObject.toJSONString(callbackDto));
+        }
+
         return ResponseVO.successResponse();
     }
 
@@ -279,18 +316,28 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
 
         if (fromItem == null) {
             return ResponseVO.errorResponse(FriendshipErrorCode.TO_IS_NOT_YOUR_FRIEND);
-        } else {
-            if (fromItem.getBlack() != null && fromItem.getBlack() == FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode()) {
-                return ResponseVO.errorResponse(FriendshipErrorCode.FRIEND_IS_NOT_BLACK);
-            } else {
-                ImFriendshipEntity update = new ImFriendshipEntity();
-                update.setBlack(FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode());
-                int update1 = imFriendshipMapper.update(update, query);
-                if(update1 == 1){
-                    return ResponseVO.successResponse();
-                }
-            }
         }
+
+        if (fromItem.getBlack() != null && fromItem.getBlack() == FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode()) {
+            return ResponseVO.errorResponse(FriendshipErrorCode.FRIEND_NOT_IN_BLACKLIST);
+        }
+
+        ImFriendshipEntity update = new ImFriendshipEntity();
+        update.setBlack(FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode());
+        int update1 = imFriendshipMapper.update(update, query);
+        if(update1 == 1){
+            // After callback
+            if (appConfig.isDeleteFriendShipBlackAfterCallback()) {
+                DeleteFriendBlackAfterCallbackDto callbackDto = new DeleteFriendBlackAfterCallbackDto();
+                callbackDto.setFromId(req.getFromId());
+                callbackDto.setToId(req.getToId());
+
+                callbackService.callback(req.getAppId(), Constants.CallbackCommand.DeleteBlackAfter, JSONObject.toJSONString(callbackDto));
+            }
+            return ResponseVO.successResponse();
+        }
+
+
 
         return ResponseVO.errorResponse();
     }
@@ -340,6 +387,14 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
 
         int update = imFriendshipMapper.update(null, updateWrapper);
         if(update != 1){
+            // After callback
+            if (appConfig.isModifyFriendAfterCallback()) {
+                UpdateFriendAfterCallbackDto callbackDto = new UpdateFriendAfterCallbackDto();
+                callbackDto.setFromId(fromId);
+                callbackDto.setToItem(dto);
+
+                callbackService.callback(appId, Constants.CallbackCommand.UpdateFriendAfter, JSONObject.toJSONString(callbackDto));
+            }
             return ResponseVO.errorResponse();
         }
         return ResponseVO.successResponse();
@@ -425,6 +480,15 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
                 update.setStatus(FriendshipStatusEnum.FRIEND_STATUS_NORMAL.getCode());
                 imFriendshipMapper.update(update,toQuery);
             }
+        }
+
+        // After callback
+        if (appConfig.isAddFriendAfterCallback()) {
+            AddFriendAfterCallbackDto callbackDto = new AddFriendAfterCallbackDto();
+            callbackDto.setFromId(fromId);
+            callbackDto.setToItem(dto);
+
+            callbackService.callback(appId, Constants.CallbackCommand.AddFriendAfter, JSONObject.toJSONString(callbackDto));
         }
 
         return ResponseVO.successResponse();
