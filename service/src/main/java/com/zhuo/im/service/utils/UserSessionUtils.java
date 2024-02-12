@@ -19,7 +19,7 @@ public class UserSessionUtils {
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
-    
+
 
     /**
      * @description Get all user sessions
