@@ -2,10 +2,14 @@ package com.zhuo.im.service.friendship.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zhuo.im.codec.pack.friendship.AddFriendGroupPack;
+import com.zhuo.im.codec.pack.friendship.DeleteFriendGroupPack;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.enums.DelFlagEnum;
 import com.zhuo.im.common.enums.FriendshipErrorCode;
 import com.zhuo.im.common.enums.FriendshipStatusEnum;
+import com.zhuo.im.common.enums.command.FriendshipEventCommand;
+import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.service.friendship.dao.ImFriendshipEntity;
 import com.zhuo.im.service.friendship.dao.ImFriendshipGroupEntity;
 import com.zhuo.im.service.friendship.dao.mapper.ImFriendshipGroupMapper;
@@ -16,6 +20,7 @@ import com.zhuo.im.service.friendship.service.ImFriendshipGroupMemberService;
 import com.zhuo.im.service.friendship.service.ImFriendshipGroupService;
 import com.zhuo.im.service.friendship.service.ImFriendshipService;
 import com.zhuo.im.service.user.service.ImUserService;
+import com.zhuo.im.service.utils.MessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -32,6 +37,9 @@ public class ImFriendshipGroupServiceImpl implements ImFriendshipGroupService {
 
     @Autowired
     ImUserService imUserService;
+
+    @Autowired
+    MessageProducer messageProducer;
 
     @Override
     @Transactional
@@ -93,6 +101,12 @@ public class ImFriendshipGroupServiceImpl implements ImFriendshipGroupService {
             }
         }
 
+        // Send tcp notification
+        AddFriendGroupPack addFriendGropPack = new AddFriendGroupPack();
+        addFriendGropPack.setFromId(req.getFromId());
+        addFriendGropPack.setGroupName(req.getGroupName());
+        messageProducer.sendToUserClientsExceptOne(req.getFromId(), FriendshipEventCommand.FRIEND_GROUP_ADD,
+                addFriendGropPack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
         return ResponseVO.successResponse();
     }
@@ -117,6 +131,12 @@ public class ImFriendshipGroupServiceImpl implements ImFriendshipGroupService {
                 imFriendshipGroupMapper.updateById(update);
                 imFriendshipGroupMemberService.clearGroupMembers(entity.getGroupId());
 
+                // Send tcp notification
+                DeleteFriendGroupPack deleteFriendGroupPack = new DeleteFriendGroupPack();
+                deleteFriendGroupPack.setFromId(req.getFromId());
+                deleteFriendGroupPack.setGroupName(groupName);
+                messageProducer.sendToUserClientsExceptOne(req.getFromId(), FriendshipEventCommand.FRIEND_GROUP_DELETE,
+                        deleteFriendGroupPack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
             }
         }
         return ResponseVO.successResponse();

@@ -1,6 +1,7 @@
 package com.zhuo.im.service.friendship.service;
 
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.model.RequestBase;
 import com.zhuo.im.service.friendship.model.req.*;
 
 /**
@@ -31,5 +32,5 @@ public interface ImFriendshipService {
 
     public ResponseVO checkBlack(CheckFriendshipReq req);
 
-    public ResponseVO doAddFriendship(String fromId, FriendshipDto dto, Integer appId);
+    public ResponseVO doAddFriendship(RequestBase requestBase, String fromId, FriendshipDto dto, Integer appId);
 }

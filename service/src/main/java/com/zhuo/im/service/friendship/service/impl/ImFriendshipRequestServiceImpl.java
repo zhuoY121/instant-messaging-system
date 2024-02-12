@@ -1,9 +1,12 @@
 package com.zhuo.im.service.friendship.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zhuo.im.codec.pack.friendship.ApproveFriendRequestPack;
+import com.zhuo.im.codec.pack.friendship.ReadAllFriendRequestPack;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.enums.ApproveFriendRequestStatusEnum;
 import com.zhuo.im.common.enums.FriendshipErrorCode;
+import com.zhuo.im.common.enums.command.FriendshipEventCommand;
 import com.zhuo.im.service.friendship.dao.ImFriendshipRequestEntity;
 import com.zhuo.im.service.friendship.dao.mapper.ImFriendshipRequestMapper;
 import com.zhuo.im.service.friendship.model.req.ApproveFriendRequestReq;
@@ -12,6 +15,7 @@ import com.zhuo.im.service.friendship.model.req.GetFriendshipRequestReq;
 import com.zhuo.im.service.friendship.model.req.ReadFriendshipRequestReq;
 import com.zhuo.im.service.friendship.service.ImFriendshipRequestService;
 import com.zhuo.im.service.friendship.service.ImFriendshipService;
+import com.zhuo.im.service.utils.MessageProducer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,9 @@ public class ImFriendshipRequestServiceImpl implements ImFriendshipRequestServic
 
     @Autowired
     ImFriendshipService imFriendshipService;
+
+    @Autowired
+    MessageProducer messageProducer;
 
     @Override
     public ResponseVO addFriendshipRequest(String fromId, FriendshipDto dto, Integer appId) {
@@ -64,6 +71,10 @@ public class ImFriendshipRequestServiceImpl implements ImFriendshipRequestServic
             imFriendshipRequestMapper.updateById(request);
         }
 
+        // A sends a friend request to B, then B will receive the TCP notification.
+        messageProducer.sendToUserClients(dto.getToId(), null, "",
+                FriendshipEventCommand.FRIEND_REQUEST, request, appId);
+
         return ResponseVO.successResponse();
     }
 
@@ -94,12 +105,19 @@ public class ImFriendshipRequestServiceImpl implements ImFriendshipRequestServic
             dto.setAddMessage(imFriendShipRequestEntity.getAddMessage());
             dto.setRemark(imFriendShipRequestEntity.getRemark());
             dto.setToId(imFriendShipRequestEntity.getToId());
-            ResponseVO responseVO = imFriendshipService.doAddFriendship(imFriendShipRequestEntity.getFromId(), dto,req.getAppId());
+            ResponseVO responseVO = imFriendshipService.doAddFriendship(req, imFriendShipRequestEntity.getFromId(), dto, req.getAppId());
 
             if(!responseVO.isOk() && responseVO.getCode() != FriendshipErrorCode.TO_IS_YOUR_FRIEND.getCode()){
                 return responseVO;
             }
         }
+
+        // Send TCP notification
+        ApproveFriendRequestPack approveFriendRequestPack = new ApproveFriendRequestPack();
+        approveFriendRequestPack.setId(req.getId());
+        approveFriendRequestPack.setStatus(req.getStatus());
+        messageProducer.sendToUserClients(imFriendShipRequestEntity.getToId(),req.getClientType(),req.getImei(),
+                FriendshipEventCommand.FRIEND_REQUEST_APPROVE, approveFriendRequestPack,req.getAppId());
 
         return ResponseVO.successResponse();
     }
@@ -114,6 +132,12 @@ public class ImFriendshipRequestServiceImpl implements ImFriendshipRequestServic
         ImFriendshipRequestEntity update = new ImFriendshipRequestEntity();
         update.setReadStatus(1);
         imFriendshipRequestMapper.update(update, query);
+
+        // Send TCP notification
+        ReadAllFriendRequestPack readAllFriendRequestPack = new ReadAllFriendRequestPack();
+        readAllFriendRequestPack.setFromId(req.getFromId());
+        messageProducer.sendToUserClients(req.getFromId(), req.getClientType(), req.getImei(),
+                FriendshipEventCommand.FRIEND_REQUEST_READ, readAllFriendRequestPack, req.getAppId());
 
         return ResponseVO.successResponse();
     }
