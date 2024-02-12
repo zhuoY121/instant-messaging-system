@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhuo.im.codec.pack.group.AddGroupMemberPack;
+import com.zhuo.im.codec.pack.group.DeleteGroupMemberPack;
+import com.zhuo.im.codec.pack.group.UpdateGroupMemberPack;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.config.AppConfig;
 import com.zhuo.im.common.constant.Constants;
@@ -13,12 +16,13 @@ import com.zhuo.im.common.enums.GroupErrorCode;
 import com.zhuo.im.common.enums.GroupMemberRoleEnum;
 import com.zhuo.im.common.enums.GroupStatusEnum;
 import com.zhuo.im.common.enums.GroupTypeEnum;
+import com.zhuo.im.common.enums.command.GroupEventCommand;
 import com.zhuo.im.common.exception.ApplicationException;
+import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.service.group.dao.ImGroupEntity;
 import com.zhuo.im.service.group.dao.ImGroupMemberEntity;
 import com.zhuo.im.service.group.dao.mapper.ImGroupMemberMapper;
 import com.zhuo.im.service.group.model.callback.AddGroupMemberAfterCallback;
-import com.zhuo.im.service.group.model.callback.DeleteGroupCallbackDto;
 import com.zhuo.im.service.group.model.req.*;
 import com.zhuo.im.service.group.model.resp.AddMemberResp;
 import com.zhuo.im.service.group.model.resp.GetRoleInGroupResp;
@@ -27,6 +31,7 @@ import com.zhuo.im.service.group.service.ImGroupService;
 import com.zhuo.im.service.user.dao.ImUserDataEntity;
 import com.zhuo.im.service.user.service.ImUserService;
 import com.zhuo.im.service.utils.CallbackService;
+import com.zhuo.im.service.utils.GroupMessageProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -61,6 +66,9 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
 
     @Autowired
     CallbackService callbackService;
+
+    @Autowired
+    GroupMessageProducer groupMessageProducer;
 
     @Override
     public ResponseVO importGroupMember(ImportGroupMemberReq req) {
@@ -228,6 +236,13 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
             resp.add(addMemberResp);
         }
 
+        // Send tcp notification
+        AddGroupMemberPack pack = new AddGroupMemberPack();
+        pack.setGroupId(req.getGroupId());
+        pack.setMembers(successId);
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.ADD_MEMBER, pack,
+                new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
         // After callback
         if (appConfig.isAddGroupMemberAfterCallback()) {
             AddGroupMemberAfterCallback callbackDto = new AddGroupMemberAfterCallback();
@@ -266,6 +281,16 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
     public ResponseVO<List<GroupMemberDto>> getGroupMember(String groupId, Integer appId) {
         List<GroupMemberDto> groupMember = imGroupMemberMapper.getGroupMember(appId, groupId);
         return ResponseVO.successResponse(groupMember);
+    }
+
+    @Override
+    public List<String> getGroupMemberIdList(String groupId, Integer appId) {
+        return imGroupMemberMapper.getGroupMemberIdList(appId, groupId);
+    }
+
+    @Override
+    public List<GroupMemberDto> getGroupManagerList(String groupId, Integer appId) {
+        return imGroupMemberMapper.getGroupManager(groupId, appId);
     }
 
     @Override
@@ -378,6 +403,13 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
         ResponseVO responseVO = thisService.removeGroupMember(req.getGroupId(), req.getAppId(), req.getMemberId());
 
         if (responseVO.isOk()) {
+            // Send tcp notification
+            DeleteGroupMemberPack pack = new DeleteGroupMemberPack();
+            pack.setGroupId(req.getGroupId());
+            pack.setMember(req.getMemberId());
+            groupMessageProducer.producer(req.getOperator(), GroupEventCommand.DELETE_MEMBER, pack,
+                    new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
             // After callback
             if (appConfig.isDeleteGroupMemberAfterCallback()) {
                 callbackService.callback(req.getAppId(), Constants.CallbackCommand.DeleteGroupMemberAfter,
@@ -500,6 +532,15 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
         objectUpdateWrapper.eq("member_id", req.getMemberId());
         objectUpdateWrapper.eq("group_id", req.getGroupId());
         imGroupMemberMapper.update(update, objectUpdateWrapper);
+
+        // Send tcp notification
+        UpdateGroupMemberPack pack = new UpdateGroupMemberPack();
+        pack.setGroupId(req.getGroupId());
+        pack.setMemberId(req.getMemberId());
+        pack.setAlias(req.getAlias());
+        pack.setExtra(req.getExtra());
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.UPDATE_MEMBER, pack,
+                new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
         return ResponseVO.successResponse();
     }

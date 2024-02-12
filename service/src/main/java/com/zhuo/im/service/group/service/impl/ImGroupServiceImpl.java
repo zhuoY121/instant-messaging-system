@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.zhuo.im.codec.pack.group.*;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.config.AppConfig;
 import com.zhuo.im.common.constant.Constants;
@@ -11,7 +12,9 @@ import com.zhuo.im.common.enums.GroupErrorCode;
 import com.zhuo.im.common.enums.GroupMemberRoleEnum;
 import com.zhuo.im.common.enums.GroupStatusEnum;
 import com.zhuo.im.common.enums.GroupTypeEnum;
+import com.zhuo.im.common.enums.command.GroupEventCommand;
 import com.zhuo.im.common.exception.ApplicationException;
+import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.service.friendship.model.callback.DeleteFriendBlackAfterCallbackDto;
 import com.zhuo.im.service.group.dao.ImGroupEntity;
 import com.zhuo.im.service.group.dao.mapper.ImGroupMapper;
@@ -23,6 +26,7 @@ import com.zhuo.im.service.group.model.resp.GetRoleInGroupResp;
 import com.zhuo.im.service.group.service.ImGroupMemberService;
 import com.zhuo.im.service.group.service.ImGroupService;
 import com.zhuo.im.service.utils.CallbackService;
+import com.zhuo.im.service.utils.GroupMessageProducer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +58,8 @@ public class ImGroupServiceImpl implements ImGroupService {
     @Autowired
     CallbackService callbackService;
 
+    @Autowired
+    GroupMessageProducer groupMessageProducer;
 
     @Override
     public ResponseVO importGroup(ImportGroupReq req) {
@@ -137,6 +143,12 @@ public class ImGroupServiceImpl implements ImGroupService {
             groupMemberService.addGroupMember(req.getGroupId(), req.getAppId(), dto);
         }
 
+        // Send tcp notification
+        CreateGroupPack createGroupPack = new CreateGroupPack();
+        BeanUtils.copyProperties(imGroupEntity, createGroupPack);
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.CREATE_GROUP, createGroupPack,
+                new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
         // After callback
         if (appConfig.isCreateGroupAfterCallback()) {
             callbackService.callback(req.getAppId(), Constants.CallbackCommand.CreateGroupAfter,
@@ -216,6 +228,12 @@ public class ImGroupServiceImpl implements ImGroupService {
         if (row != 1) {
             throw new ApplicationException(GroupErrorCode.UPDATE_GROUP_BASE_INFO_ERROR);
         }
+
+        // Send tcp notification
+        UpdateGroupInfoPack pack = new UpdateGroupInfoPack();
+        BeanUtils.copyProperties(req, pack);
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.UPDATE_GROUP,
+                pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
         // After callback
         if (appConfig.isModifyGroupAfterCallback()) {
@@ -327,6 +345,12 @@ public class ImGroupServiceImpl implements ImGroupService {
             throw new ApplicationException(GroupErrorCode.UPDATE_GROUP_BASE_INFO_ERROR);
         }
 
+        // Send tcp notification
+        DeleteGroupPack pack = new DeleteGroupPack();
+        pack.setGroupId(req.getGroupId());
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.DELETE_GROUP, pack,
+                new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
         // After callback
         if (appConfig.isDeleteGroupAfterCallback()) {
             DeleteGroupCallbackDto callbackDto = new DeleteGroupCallbackDto();
@@ -372,6 +396,13 @@ public class ImGroupServiceImpl implements ImGroupService {
         imGroupMapper.update(updateGroup, updateGroupWrapper);
         groupMemberService.transferGroupMember(req.getOwnerId(), req.getGroupId(), req.getAppId());
 
+        // Send tcp notification
+        TransferGroupPack transferGroupPack = new TransferGroupPack();
+        transferGroupPack.setGroupId(imGroupEntity.getGroupId());
+        transferGroupPack.setOwnerId(imGroupEntity.getOwnerId());
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.TRANSFER_GROUP, transferGroupPack,
+                new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
         return ResponseVO.successResponse();
     }
 
@@ -416,6 +447,12 @@ public class ImGroupServiceImpl implements ImGroupService {
         wrapper.eq("group_id",req.getGroupId());
         wrapper.eq("app_id",req.getAppId());
         imGroupMapper.update(update,wrapper);
+
+        // Send tcp notification
+        MuteGroupPack pack = new MuteGroupPack();
+        pack.setGroupId(req.getGroupId());
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.MUTE_GROUP, pack,
+                new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
         return ResponseVO.successResponse();
     }
