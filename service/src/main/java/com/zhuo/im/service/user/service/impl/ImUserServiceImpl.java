@@ -2,11 +2,13 @@ package com.zhuo.im.service.user.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zhuo.im.codec.pack.user.ModifyUserInfoPack;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.config.AppConfig;
 import com.zhuo.im.common.constant.Constants;
 import com.zhuo.im.common.enums.DelFlagEnum;
 import com.zhuo.im.common.enums.UserErrorCode;
+import com.zhuo.im.common.enums.command.UserEventCommand;
 import com.zhuo.im.common.exception.ApplicationException;
 import com.zhuo.im.service.user.constants.UserConstants;
 import com.zhuo.im.service.user.dao.ImUserDataEntity;
@@ -16,6 +18,7 @@ import com.zhuo.im.service.user.model.resp.GetUserInfoResp;
 import com.zhuo.im.service.user.model.resp.ImportUserResp;
 import com.zhuo.im.service.user.service.ImUserService;
 import com.zhuo.im.service.utils.CallbackService;
+import com.zhuo.im.service.utils.MessageProducer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,9 @@ public class ImUserServiceImpl implements ImUserService {
 
     @Autowired
     CallbackService callbackService;
+
+    @Autowired
+    MessageProducer messageProducer;
 
     @Override
     public ResponseVO importUser(ImportUserReq req) {
@@ -69,6 +75,7 @@ public class ImUserServiceImpl implements ImUserService {
 
     @Override
     public ResponseVO<GetUserInfoResp> getUserInfo(GetUserInfoReq req) {
+
         QueryWrapper<ImUserDataEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("app_id",req.getAppId());
         queryWrapper.in("user_id",req.getUserIds());
@@ -98,6 +105,7 @@ public class ImUserServiceImpl implements ImUserService {
 
     @Override
     public ResponseVO<ImUserDataEntity> getSingleUserInfo(String userId, Integer appId) {
+
         QueryWrapper objectQueryWrapper = new QueryWrapper<>();
         objectQueryWrapper.eq("app_id",appId);
         objectQueryWrapper.eq("user_id",userId);
@@ -113,6 +121,7 @@ public class ImUserServiceImpl implements ImUserService {
 
     @Override
     public ResponseVO deleteUser(DeleteUserReq req) {
+
         ImUserDataEntity entity = new ImUserDataEntity();
         entity.setDelFlag(DelFlagEnum.DELETE.getCode());
 
@@ -147,12 +156,13 @@ public class ImUserServiceImpl implements ImUserService {
     @Override
     @Transactional
     public ResponseVO modifyUserInfo(ModifyUserInfoReq req) {
+
         QueryWrapper query = new QueryWrapper<>();
         query.eq("app_id",req.getAppId());
         query.eq("user_id",req.getUserId());
         query.eq("del_flag",DelFlagEnum.NORMAL.getCode());
         ImUserDataEntity user = imUserDataMapper.selectOne(query);
-        if(user == null){
+        if (user == null){
             throw new ApplicationException(UserErrorCode.USER_NOT_EXIST);
         }
 
@@ -162,7 +172,13 @@ public class ImUserServiceImpl implements ImUserService {
         update.setAppId(null);
         update.setUserId(null);
         int update1 = imUserDataMapper.update(update, query);
-        if(update1 == 1){
+        if (update1 == 1) {
+
+            // Notify user
+            ModifyUserInfoPack pack = new ModifyUserInfoPack();
+            BeanUtils.copyProperties(req, pack);
+            messageProducer.sendToUserClients(req.getUserId(), req.getClientType(), req.getImei(),
+                    UserEventCommand.MODIFY_USER_INFO, pack, req.getAppId());
 
             // Callback
             if (appConfig.isModifyUserAfterCallback()) {

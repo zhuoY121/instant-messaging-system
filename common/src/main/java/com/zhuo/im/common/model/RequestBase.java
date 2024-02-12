@@ -9,4 +9,8 @@ public class RequestBase {
 
     // People who use the API
     private String operator;
+
+    private Integer clientType;
+
+    private String imei;
 }

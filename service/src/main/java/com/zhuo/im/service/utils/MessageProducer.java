@@ -62,17 +62,27 @@ public class MessageProducer {
         return sendMessage(session, body);
     }
 
+    // Send to user clients based on the client type.
+    public void sendToUserClients(String toId, Integer clientType, String imei, Command command, Object data, Integer appId) {
+
+        if (clientType != null && StringUtils.isNotBlank(imei)) {   // Invoked by a user client, then send to other clients
+            ClientInfo clientInfo = new ClientInfo(appId, clientType, imei);
+            sendToUserClientsExceptOne(toId, command, data, clientInfo);
+        } else{ // Invoked by admin, then send to all users
+            sendToUserClients(toId, command, data, appId);
+        }
+    }
+
     // Send to all clients
-    public void sendToUser(String toId, Command command, Object data, Integer appId) {
+    public void sendToUserClients(String toId, Command command, Object data, Integer appId) {
         List<UserSession> userSession = userSessionUtils.getUserSession(appId, toId);
         for (UserSession session : userSession) {
             sendPack(toId, command, data, session);
         }
     }
 
-
     // Send to a specified client of a user
-    public void sendToUser(String toId, Command command, Object data, ClientInfo clientInfo) {
+    public void sendToUserClient(String toId, Command command, Object data, ClientInfo clientInfo) {
         UserSession userSession = userSessionUtils.getUserSession(clientInfo.getAppId(), toId,
                 clientInfo.getClientType(), clientInfo.getImei());
         sendPack(toId, command, data, userSession);
@@ -85,7 +95,7 @@ public class MessageProducer {
     }
 
     // Send to clients except one client
-    public void sendToUserExceptClient(String toId, Command command, Object data, ClientInfo clientInfo) {
+    public void sendToUserClientsExceptOne(String toId, Command command, Object data, ClientInfo clientInfo) {
         List<UserSession> userSession = userSessionUtils.getUserSession(clientInfo.getAppId(), toId);
         for (UserSession session : userSession) {
             if (!match(session, clientInfo)) {
