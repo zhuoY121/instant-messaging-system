@@ -269,6 +269,11 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
     }
 
     @Override
+    public List<String> getGroupMemberList(String groupId, Integer appId) {
+        return imGroupMemberMapper.getGroupMemberId(appId, groupId);
+    }
+
+    @Override
     public ResponseVO<Collection<String>> getJoinedGroupByMember(GetJoinedGroupReq req) {
 
         if (req.getLimit() != null) {

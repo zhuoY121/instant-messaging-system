@@ -33,6 +33,11 @@ public interface ImGroupMemberMapper extends BaseMapper<ImGroupMemberEntity> {
             " from im_group_member where app_id = #{appId} AND group_id = #{groupId} ")
     public List<GroupMemberDto> getGroupMember(Integer appId, String groupId);
 
+    @Select("select " +
+            " member_id " +
+            " from im_group_member where app_id = #{appId} AND group_id = #{groupId} and role != 3")
+    public List<String> getGroupMemberId(Integer appId, String groupId);
+
     @Select("select group_id from im_group_member where app_id = #{appId} AND member_id = #{memberId} ")
     public List<String> getJoinedGroupId(Integer appId, String memberId);
 

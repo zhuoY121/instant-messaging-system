@@ -24,6 +24,8 @@ public interface ImGroupMemberService {
 
     public ResponseVO<List<GroupMemberDto>> getGroupMember(String groupId, Integer appId);
 
+    public List<String> getGroupMemberList(String groupId, Integer appId);
+
     public ResponseVO<Collection<String>> getJoinedGroupByMember(GetJoinedGroupReq req);
 
     public ResponseVO transferGroupMember(String owner, String groupId, Integer appId);
