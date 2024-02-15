@@ -6,6 +6,7 @@ import com.zhuo.im.tcp.redis.RedisManager;
 import com.zhuo.im.tcp.register.RegistryZK;
 import com.zhuo.im.tcp.register.ZKit;
 import com.zhuo.im.tcp.server.ImServer;
+import com.zhuo.im.tcp.server.ImWebSocketServer;
 import com.zhuo.im.tcp.utils.RabbitmqFactory;
 import org.I0Itec.zkclient.ZkClient;
 import org.yaml.snakeyaml.Yaml;
@@ -35,6 +36,7 @@ public class Starter {
             BootstrapConfig bootstrapConfig = yaml.loadAs(inputStream, BootstrapConfig.class);
 
             new ImServer(bootstrapConfig.getTcpConfig()).start();
+            new ImWebSocketServer(bootstrapConfig.getTcpConfig()).start();
 
             RedisManager.init(bootstrapConfig.getTcpConfig());
             RabbitmqFactory.init(bootstrapConfig.getTcpConfig().getRabbitmq());
