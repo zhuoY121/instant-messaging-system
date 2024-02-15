@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @description:
- * @author: lld
  * @version: 1.0
  */
 public class ImWebSocketServer {
