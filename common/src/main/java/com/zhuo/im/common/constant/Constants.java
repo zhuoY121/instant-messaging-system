@@ -40,6 +40,10 @@ public class Constants {
          */
         public static final String UserLoginChannel = "signal/channel/LOGIN_USER_INNER_QUEUE";
 
+        /**
+         * userSignature, format：appId:userSignature:
+         */
+        public static final String userSignature = "userSignature";
 
     }
 

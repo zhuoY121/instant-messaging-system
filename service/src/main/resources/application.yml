@@ -24,6 +24,7 @@ server:
   port: 8000
 
 appConfig:
+  privateKey: 123456
   zkAddr: 127.0.0.1:2181
   zkConnectTimeOut: 50000
   imRoutingMethod: 3 # IM-sys routing Method: 1 random; 2 round-robin; 3 consistent hashing
