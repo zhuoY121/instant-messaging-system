@@ -10,6 +10,7 @@ import com.zhuo.im.common.enums.ImConnectStatusEnum;
 import com.zhuo.im.common.enums.command.SystemCommand;
 import com.zhuo.im.common.model.UserClientDto;
 import com.zhuo.im.common.model.UserSession;
+import com.zhuo.im.tcp.publish.MqMessageProducer;
 import com.zhuo.im.tcp.redis.RedisManager;
 import com.zhuo.im.tcp.utils.SessionSocketHolder;
 import io.netty.channel.ChannelHandlerContext;
@@ -89,6 +90,9 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
 
         } else if (command == SystemCommand.PING.getCommand()) {
             ctx.channel().attr(AttributeKey.valueOf(Constants.ReadTime)).set(System.currentTimeMillis());
+
+        } else {
+            MqMessageProducer.sendMessage(msg, command);
         }
 
     }

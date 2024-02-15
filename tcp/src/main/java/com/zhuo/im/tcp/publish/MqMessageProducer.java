@@ -16,14 +16,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MqMessageProducer {
 
-    public static void sendMessage(Message message){
+    public static void sendMessage(Message message, Integer command){
 
         Channel channel = null;
-        String channelName = "";
+        String channelName = Constants.RabbitmqConstants.Im2MessageService;
 
         try {
             channel = RabbitmqFactory.getChannel(channelName);
+
             JSONObject o = (JSONObject) JSON.toJSON(message.getMessagePack());
+            o.put("command", command);
+            o.put("clientType", message.getMessageHeader().getClientType());
+            o.put("imei", message.getMessageHeader().getImei());
+            o.put("appId", message.getMessageHeader().getAppId());
+
             channel.basicPublish(channelName,"", null, o.toJSONString().getBytes());
 
         }catch (Exception e){
