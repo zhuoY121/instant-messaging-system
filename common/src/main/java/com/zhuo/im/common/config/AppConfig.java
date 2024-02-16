@@ -50,4 +50,8 @@ public class AppConfig {
 
     private boolean addGroupMemberAfterCallback;
 
+    private boolean sendMessageCheckFriendship;
+
+    private boolean sendMessageCheckBlacklist;
+
 }

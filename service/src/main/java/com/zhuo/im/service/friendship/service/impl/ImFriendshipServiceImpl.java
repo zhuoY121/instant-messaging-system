@@ -322,7 +322,7 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
         } else{
             // If it exists, determine the status. If it is blocked, it will prompt that it has been blocked. If it is not blocked, modify the status.
             if (fromItem.getBlack() != null && fromItem.getBlack() == FriendshipStatusEnum.BLACK_STATUS_BLACKED.getCode()){
-                return ResponseVO.errorResponse(FriendshipErrorCode.FRIEND_IS_BLACK);
+                return ResponseVO.errorResponse(FriendshipErrorCode.FRIEND_IN_BLACKLIST);
             } else {
                 ImFriendshipEntity update = new ImFriendshipEntity();
                 update.setBlack(FriendshipStatusEnum.BLACK_STATUS_BLACKED.getCode());

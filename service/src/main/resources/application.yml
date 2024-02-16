@@ -45,6 +45,8 @@ appConfig:
   addGroupMemberAfterCallback: false # Callback after adding people to the group
   addGroupMemberBeforeCallback: false # Callback before adding people to the group
 
+  sendMessageCheckFriendship: true # Whether to verify the friendship when sending a message
+  sendMessageCheckBlacklist: true # Whether to verify the blacklist when sending a message
 
 httpclient:
   maxTotal: 100

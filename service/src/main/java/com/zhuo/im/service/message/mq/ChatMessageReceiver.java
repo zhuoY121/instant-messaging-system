@@ -1,7 +1,12 @@
 package com.zhuo.im.service.message.mq;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
 import com.zhuo.im.common.constant.Constants;
+import com.zhuo.im.common.enums.command.MessageCommand;
+import com.zhuo.im.service.message.model.MessageContent;
+import com.zhuo.im.service.message.service.P2PMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -9,6 +14,8 @@ import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
@@ -20,10 +27,12 @@ import java.util.Map;
  * @version: 1.0
  */
 @Component
-public class ChatOperateReceiver {
+public class ChatMessageReceiver {
 
-    private static Logger logger = LoggerFactory.getLogger(ChatOperateReceiver.class);
+    private static Logger logger = LoggerFactory.getLogger(ChatMessageReceiver.class);
 
+    @Autowired
+    P2PMessageService p2pMessageService;
 
     @RabbitListener(
             bindings = @QueueBinding(
@@ -37,6 +46,30 @@ public class ChatOperateReceiver {
 
         String msg = new String(message.getBody(),"utf-8");
         logger.info("CHAT MSG FROM QUEUE ::: {}", msg);
+        Long deliveryTag = (Long) headers.get(AmqpHeaders.DELIVERY_TAG);
+
+        try {
+            JSONObject jsonObject = JSON.parseObject(msg);
+            Integer command = jsonObject.getInteger("command");
+
+            if (command.equals(MessageCommand.MSG_P2P.getCommand())) {
+                // Process message
+                MessageContent messageContent = jsonObject.toJavaObject(MessageContent.class);
+                p2pMessageService.process(messageContent);
+
+            }
+
+            channel.basicAck(deliveryTag, false);
+
+        } catch (Exception e) {
+            logger.error("An exception occurred while processing the message: {}", e.getMessage());
+            logger.error("RMQ_CHAT_TRAN_ERROR: ", e);
+            logger.error("NACK_MSG:{}", msg);
+
+            // The first false means not to reject batches, and the second false means not to return to the queue.
+            channel.basicNack(deliveryTag, false, false);
+        }
+
     }
 
 

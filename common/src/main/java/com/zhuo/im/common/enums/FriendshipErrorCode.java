@@ -15,9 +15,9 @@ public enum FriendshipErrorCode implements ApplicationExceptionEnum {
 
     FRIEND_IS_DELETED(30004,"Friend has been deleted"),
 
-    FRIEND_IS_BLACK(30006,"Friend has been blocked"),
+    FRIEND_IN_BLACKLIST(30006,"Friend is in the blacklist"),
 
-    TARGET_IS_BLACK_YOU(30007,"The other party blocked you"),
+    TARGET_BLOCK_YOU(30007,"The other party blocks you"),
 
     RELATIONSHIP_IS_NOT_EXIST(30008,"The relationship chain record does not exist"),
 
