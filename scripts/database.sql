@@ -153,6 +153,40 @@ CREATE TABLE `im_group_member`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
+-- ----------------------------
+-- Table structure for im_message_body
+-- ----------------------------
+DROP TABLE IF EXISTS `im_message_body`;
+CREATE TABLE `im_message_body`  (
+    `app_id` int(10) NOT NULL,
+    `message_key` bigint(50) NOT NULL COMMENT 'Message body id',
+    `message_body` varchar(5000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+    `security_key` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Used to encrypt the message body',
+    `message_time` bigint(20) NULL DEFAULT NULL COMMENT 'The time the client sent the message',
+    `create_time` bigint(20) NULL DEFAULT NULL COMMENT 'The time the server inserted the message data',
+    `extra` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+    `del_flag` int(10) NULL DEFAULT NULL,
+    PRIMARY KEY (`message_key`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+
+-- ----------------------------
+-- Table structure for im_message_history
+-- ----------------------------
+DROP TABLE IF EXISTS `im_message_history`;
+CREATE TABLE `im_message_history`  (
+    `app_id` int(20) NOT NULL,
+    `from_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    `to_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    `owner_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    `message_key` bigint(50) NOT NULL COMMENT 'Message body id',
+    `message_time` bigint(20) NULL DEFAULT NULL COMMENT 'The time the client sent the message',
+    `create_time` bigint(20) NULL DEFAULT NULL COMMENT 'The time the server inserted the message data',
+    `sequence` bigint(20) NULL DEFAULT NULL,
+    `message_random` int(20) NULL DEFAULT NULL,
+    PRIMARY KEY (`app_id`, `owner_id`, `message_key`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
 
 
 SET FOREIGN_KEY_CHECKS = 1;

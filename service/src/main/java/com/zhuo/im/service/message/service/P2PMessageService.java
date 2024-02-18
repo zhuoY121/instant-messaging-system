@@ -35,6 +35,8 @@ public class P2PMessageService {
     @Autowired
     MessageProducer messageProducer;
 
+    @Autowired
+    MessageStoreService messageStoreService;
 
 
     public void process(MessageContent messageContent){
@@ -47,6 +49,9 @@ public class P2PMessageService {
         // Check permission
         ResponseVO responseVO = imServerCheckPermission(fromId, toId, appId);
         if (responseVO.isOk()) {
+
+            messageStoreService.storeP2PMessage(messageContent);
+
             // 1. Send ACK success to yourself
             ack(messageContent, responseVO);
 

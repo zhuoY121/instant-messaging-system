@@ -18,4 +18,10 @@ public class MessageContent extends ClientInfo {
 
     private String messageBody;
 
+    private Long messageTime;
+
+    private String extra;
+
+    private Long messageKey;
+
 }

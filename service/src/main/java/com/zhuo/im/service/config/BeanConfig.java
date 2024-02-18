@@ -8,6 +8,7 @@ import com.zhuo.im.common.route.algorithm.consistenthash.AbstractConsistentHash;
 import com.zhuo.im.common.route.algorithm.consistenthash.ConsistentHashHandler;
 import com.zhuo.im.common.route.algorithm.consistenthash.TreeMapConsistentHash;
 import com.zhuo.im.common.route.algorithm.roundRobin.RoundRobinHandler;
+import com.zhuo.im.service.utils.SnowflakeIdWorker;
 import org.I0Itec.zkclient.ZkClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -55,5 +56,14 @@ public class BeanConfig {
         return routeHandler;
     }
 
+    @Bean
+    public EasySqlInjector easySqlInjector () {
+        return new EasySqlInjector();
+    }
+
+    @Bean
+    public SnowflakeIdWorker buildSnowflakeSeq() {
+        return new SnowflakeIdWorker(0);
+    }
 
 }

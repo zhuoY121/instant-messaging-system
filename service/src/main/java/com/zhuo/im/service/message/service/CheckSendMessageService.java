@@ -89,11 +89,13 @@ public class CheckSendMessageService {
             }
 
             if (appConfig.isSendMessageCheckBlacklist()) {
-                if (FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode() != fromFriendship.getData().getBlack()) {
+                if (fromFriendship.getData().getBlack() != null &&
+                        FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode() != fromFriendship.getData().getBlack()) {
                     return ResponseVO.errorResponse(FriendshipErrorCode.FRIEND_IN_BLACKLIST);
                 }
 
-                if (FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode() != toFriendship.getData().getBlack()) {
+                if (toFriendship.getData().getBlack() != null &&
+                        FriendshipStatusEnum.BLACK_STATUS_NORMAL.getCode() != toFriendship.getData().getBlack()) {
                     return ResponseVO.errorResponse(FriendshipErrorCode.TARGET_BLOCK_YOU);
                 }
             }
