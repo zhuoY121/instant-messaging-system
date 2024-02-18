@@ -40,10 +40,25 @@ public class P2PMessageService {
     @Autowired
     MessageStoreService messageStoreService;
 
+    private final ThreadPoolExecutor threadPoolExecutor;
+
+    {
+        final AtomicInteger num = new AtomicInteger(0);
+        threadPoolExecutor = new ThreadPoolExecutor(8, 8, 60, TimeUnit.SECONDS,
+                new LinkedBlockingDeque<>(1000), new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r);
+                thread.setDaemon(true);
+                thread.setName("message-P2P-thread-" + num.getAndIncrement());
+                return thread;
+            }
+        });
+    }
 
     public void process(MessageContent messageContent){
 
-        logger.info("Start processing messages: {}", messageContent.getMessageId());
+//        logger.info("Start processing messages: {}", messageContent.getMessageId());
         String fromId = messageContent.getFromId();
         String toId = messageContent.getToId();
         Integer appId = messageContent.getAppId();
@@ -52,16 +67,18 @@ public class P2PMessageService {
         ResponseVO responseVO = imServerCheckPermission(fromId, toId, appId);
         if (responseVO.isOk()) {
 
-            messageStoreService.storeP2PMessage(messageContent);
+            threadPoolExecutor.execute(() -> {
+                messageStoreService.storeP2PMessage(messageContent);
 
-            // 1. Send ACK success to yourself
-            ack(messageContent, responseVO);
+                // 1. Send ACK success to yourself
+                ack(messageContent, responseVO);
 
-            // 2. Send messages to your other clients who are online at the same time
-            senderSync(messageContent, messageContent);
+                // 2. Send messages to your other clients who are online at the same time
+                senderSync(messageContent, messageContent);
 
-            // 3. Send messages to all clients of the other party
-            sendToTarget(messageContent);
+                // 3. Send messages to all clients of the other party
+                sendToTarget(messageContent);
+            });
 
         } else {
             // Tell the client that sending the message failed

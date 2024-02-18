@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class SendMessageReq extends RequestBase {
 
-    //客户端传的messageId
+    // messageId from the client
     private String messageId;
 
     private String fromId;
