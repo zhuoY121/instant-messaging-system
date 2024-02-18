@@ -6,9 +6,12 @@ import com.zhuo.im.common.enums.command.GroupEventCommand;
 import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.common.model.message.GroupChatMessageContent;
 import com.zhuo.im.common.model.message.MessageContent;
+import com.zhuo.im.service.group.model.req.SendGroupMessageReq;
+import com.zhuo.im.service.message.model.resp.SendMessageResp;
 import com.zhuo.im.service.message.service.CheckSendMessageService;
 import com.zhuo.im.service.message.service.MessageStoreService;
 import com.zhuo.im.service.utils.MessageProducer;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -89,6 +92,25 @@ public class GroupMessageService {
         }
     }
 
+    public SendMessageResp send(SendGroupMessageReq req) {
 
+        GroupChatMessageContent messageContent = new GroupChatMessageContent();
+        BeanUtils.copyProperties(req, messageContent);
+
+        // Insert data
+        messageStoreService.storeGroupMessage(messageContent);
+
+        // Send messages to your other clients who are online at the same time
+        senderSync(messageContent, messageContent);
+
+        // Send messages to all clients of the other party
+        sendToTarget(messageContent);
+
+        SendMessageResp sendMessageResp = new SendMessageResp();
+        sendMessageResp.setMessageKey(messageContent.getMessageKey());
+        sendMessageResp.setMessageTime(System.currentTimeMillis());
+        return sendMessageResp;
+
+    }
 
 }

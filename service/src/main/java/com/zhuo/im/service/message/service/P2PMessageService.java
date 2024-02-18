@@ -6,6 +6,8 @@ import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.enums.command.MessageCommand;
 import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.common.model.message.MessageContent;
+import com.zhuo.im.service.message.model.req.SendMessageReq;
+import com.zhuo.im.service.message.model.resp.SendMessageResp;
 import com.zhuo.im.service.utils.MessageProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,4 +97,23 @@ public class P2PMessageService {
     }
 
 
+    public SendMessageResp send(SendMessageReq req) {
+
+        MessageContent messageContent = new MessageContent();
+        BeanUtils.copyProperties(req, messageContent);
+
+        // Insert data
+        messageStoreService.storeP2PMessage(messageContent);
+
+        // Send messages to your other clients who are online at the same time
+        senderSync(messageContent, messageContent);
+
+        // Send messages to all clients of the other party
+        sendToTarget(messageContent);
+
+        SendMessageResp sendMessageResp = new SendMessageResp();
+        sendMessageResp.setMessageKey(messageContent.getMessageKey());
+        sendMessageResp.setMessageTime(System.currentTimeMillis());
+        return sendMessageResp;
+    }
 }
