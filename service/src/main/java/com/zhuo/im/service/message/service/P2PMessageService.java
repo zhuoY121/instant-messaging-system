@@ -5,7 +5,7 @@ import com.zhuo.im.codec.pack.message.ChatMessageAck;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.enums.command.MessageCommand;
 import com.zhuo.im.common.model.ClientInfo;
-import com.zhuo.im.service.message.model.MessageContent;
+import com.zhuo.im.common.model.message.MessageContent;
 import com.zhuo.im.service.utils.MessageProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.zhuo.im.codec.protocol.Message;
 import com.zhuo.im.common.constant.Constants;
 import com.rabbitmq.client.Channel;
+import com.zhuo.im.common.enums.command.CommandType;
 import com.zhuo.im.tcp.utils.RabbitmqFactory;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +20,16 @@ public class MqMessageProducer {
     public static void sendMessage(Message message, Integer command){
 
         Channel channel = null;
-        String channelName = Constants.RabbitmqConstants.Im2MessageService;
+        String com = command.toString();
+        String commandSub = com.substring(0, 1);
+        CommandType commandType = CommandType.getCommandType(commandSub);
+
+        String channelName = "";
+        if (commandType == CommandType.MESSAGE) {
+            channelName = Constants.RabbitmqConstants.Im2MessageService;
+        } else if (commandType == CommandType.GROUP) {
+            channelName = Constants.RabbitmqConstants.Im2GroupService;
+        }
 
         try {
             channel = RabbitmqFactory.getChannel(channelName);

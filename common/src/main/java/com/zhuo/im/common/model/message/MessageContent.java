@@ -1,4 +1,4 @@
-package com.zhuo.im.service.message.model;
+package com.zhuo.im.common.model.message;
 
 import com.zhuo.im.common.model.ClientInfo;
 import lombok.Data;

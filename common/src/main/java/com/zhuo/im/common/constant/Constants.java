@@ -52,6 +52,9 @@ public class Constants {
         public static final String Im2MessageService = "pipeline2MessageService";
 
         public static final String MessageService2Im = "messageService2Pipeline";
+
+        public static final String Im2GroupService = "pipeline2GroupService";
+
     }
 
 

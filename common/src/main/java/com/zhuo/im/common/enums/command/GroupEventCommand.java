@@ -60,6 +60,20 @@ public enum GroupEventCommand implements Command {
      */
     MUTE_GROUP_MEMBER(2010),
 
+    // Group Message
+    GROUP_MSG(0x838),
+
+    // The group message status is read. 2106
+    GROUP_MSG_READ(0x83a),
+
+    // Message read notifications are synchronized to other clients. 2053
+    GROUP_MSG_READ_NOTIFICATION(0x805),
+
+    // Message read receipt. Sent to original message sender. 2054
+    GROUP_MSG_READ_RECEIPT(0x806),
+
+    // group message ACK. 2047
+    GROUP_MSG_ACK(0x7ff),
     ;
 
     private Integer command;
