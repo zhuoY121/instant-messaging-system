@@ -34,6 +34,8 @@ public class BootstrapConfig {
         // brokerId in RabbitMQ
         private Integer brokerId;
 
+        private String logicUrl;
+
     }
 
     @Data

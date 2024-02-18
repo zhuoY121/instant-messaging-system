@@ -6,6 +6,7 @@ tcpConfig:
   heartBeatTime: 20000 # Heartbeat timeout in milliseconds
   brokerId: 1000
   loginMode: 2
+  logicUrl: http://127.0.0.1:8000/v1
 
 
   redis:

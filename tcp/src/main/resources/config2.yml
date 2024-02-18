@@ -5,6 +5,7 @@ tcpConfig:
   workerThreadSize: 8
   heartBeatTime: 20000 # Heartbeat timeout in milliseconds
   brokerId: 1001
+  logicUrl: http://127.0.0.1:8000/v1
 
   redis:
     mode: single # single / sentinel / cluster

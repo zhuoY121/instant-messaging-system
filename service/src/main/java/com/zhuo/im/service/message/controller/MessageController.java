@@ -1,6 +1,9 @@
 package com.zhuo.im.service.message.controller;
 
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.enums.command.GroupEventCommand;
+import com.zhuo.im.common.model.message.CheckSendMessageReq;
+import com.zhuo.im.service.group.service.GroupMessageService;
 import com.zhuo.im.service.message.model.req.SendMessageReq;
 import com.zhuo.im.service.message.service.P2PMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +23,21 @@ public class MessageController {
     @Autowired
     P2PMessageService p2PMessageService;
 
+    @Autowired
+    GroupMessageService groupMessageService;
 
     @RequestMapping("/send")
     public ResponseVO send(@RequestBody @Validated SendMessageReq req, Integer appId)  {
         req.setAppId(appId);
         return ResponseVO.successResponse(p2PMessageService.send(req));
+    }
+
+    @RequestMapping("/checkSend")
+    public ResponseVO checkSend(@RequestBody @Validated CheckSendMessageReq req)  {
+        if (req.getCommand().equals(GroupEventCommand.GROUP_MSG.getCommand())) {
+            return groupMessageService.imServerCheckPermission(req.getFromId(), req.getToId(), req.getAppId());
+        }
+        return p2PMessageService.imServerCheckPermission(req.getFromId(), req.getToId(), req.getAppId());
     }
 
 }
