@@ -1,7 +1,10 @@
 package com.zhuo.im.service.message.service;
 
 import com.zhuo.im.common.enums.DelFlagEnum;
+import com.zhuo.im.common.model.message.GroupChatMessageContent;
 import com.zhuo.im.common.model.message.MessageContent;
+import com.zhuo.im.service.group.dao.ImGroupMessageHistoryEntity;
+import com.zhuo.im.service.group.dao.mapper.ImGroupMessageHistoryMapper;
 import com.zhuo.im.service.message.dao.ImMessageBodyEntity;
 import com.zhuo.im.service.message.dao.ImMessageHistoryEntity;
 import com.zhuo.im.service.message.dao.mapper.ImMessageBodyMapper;
@@ -31,6 +34,8 @@ public class MessageStoreService {
     @Autowired
     SnowflakeIdWorker snowflakeIdWorker;
 
+    @Autowired
+    ImGroupMessageHistoryMapper imGroupMessageHistoryMapper;
 
     @Transactional
     public void storeP2PMessage(MessageContent messageContent){
@@ -88,4 +93,29 @@ public class MessageStoreService {
         return list;
     }
 
+    @Transactional
+    public void storeGroupMessage(GroupChatMessageContent messageContent){
+
+        ImMessageBodyEntity imMessageBodyEntity = extractMessageBody(messageContent);
+
+        // Insert into im_message_body table
+        imMessageBodyMapper.insert(imMessageBodyEntity);
+
+        // Insert into im_group_message_history table
+        ImGroupMessageHistoryEntity imGroupMessageHistoryEntity = extractToGroupMessageHistory(messageContent, imMessageBodyEntity);
+        imGroupMessageHistoryMapper.insert(imGroupMessageHistoryEntity);
+
+        messageContent.setMessageKey(imMessageBodyEntity.getMessageKey());
+    }
+
+    private ImGroupMessageHistoryEntity extractToGroupMessageHistory(
+            GroupChatMessageContent messageContent, ImMessageBodyEntity messageBodyEntity) {
+
+        ImGroupMessageHistoryEntity result = new ImGroupMessageHistoryEntity();
+        BeanUtils.copyProperties(messageContent,result);
+        result.setGroupId(messageContent.getGroupId());
+        result.setMessageKey(messageBodyEntity.getMessageKey());
+        result.setCreateTime(System.currentTimeMillis());
+        return result;
+    }
 }

@@ -188,5 +188,23 @@ CREATE TABLE `im_message_history`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
+-- ----------------------------
+-- Table structure for im_group_message_history
+-- ----------------------------
+DROP TABLE IF EXISTS `im_group_message_history`;
+CREATE TABLE `im_group_message_history`  (
+    `app_id` int(20) NOT NULL,
+    `from_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    `group_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    `message_key` bigint(50) NOT NULL COMMENT 'messageBodyId',
+    `message_time` bigint(20) NULL DEFAULT NULL COMMENT 'The time the client sent the message',
+    `create_time` bigint(20) NULL DEFAULT NULL COMMENT 'The time the server inserted the message data',
+    `sequence` bigint(20) NULL DEFAULT NULL,
+    `message_random` int(20) NULL DEFAULT NULL,
+    PRIMARY KEY (`app_id`, `group_id`, `message_key`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+
+
 
 SET FOREIGN_KEY_CHECKS = 1;

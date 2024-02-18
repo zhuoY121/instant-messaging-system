@@ -7,6 +7,7 @@ import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.common.model.message.GroupChatMessageContent;
 import com.zhuo.im.common.model.message.MessageContent;
 import com.zhuo.im.service.message.service.CheckSendMessageService;
+import com.zhuo.im.service.message.service.MessageStoreService;
 import com.zhuo.im.service.utils.MessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,8 @@ public class GroupMessageService {
     @Autowired
     ImGroupMemberService imGroupMemberService;
 
+    @Autowired
+    MessageStoreService messageStoreService;
 
     public void process(GroupChatMessageContent messageContent){
 
@@ -40,6 +43,10 @@ public class GroupMessageService {
         // Check permission
         ResponseVO responseVO = imServerCheckPermission(fromId, groupId, appId);
         if (responseVO.isOk()) {
+
+            // Save to DB
+            messageStoreService.storeGroupMessage(messageContent);
+
             // 1. Send ACK success to yourself
             ack(messageContent, responseVO);
 
