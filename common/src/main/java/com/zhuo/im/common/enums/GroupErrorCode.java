@@ -31,7 +31,7 @@ public enum GroupErrorCode implements ApplicationExceptionEnum {
 
     UPDATE_GROUP_BASE_INFO_ERROR(40011, "Failed to update group information"),
 
-    THIS_GROUP_IS_MUTED(40012,"This group is prohibited from speaking"),
+    GROUP_MUTED(40012,"This group is muted"),
 
     IMPORT_GROUP_ERROR(40013, "Failed to import group"),
 
@@ -41,7 +41,7 @@ public enum GroupErrorCode implements ApplicationExceptionEnum {
 
     PUBLIC_GROUP_MUST_HAVE_OWNER(40016, "Public groups must specify a group owner"),
 
-    GROUP_MEMBER_IS_MUTED(40017, "Group members have been banned"),
+    GROUP_MEMBER_MUTED(40017, "Group members are muted"),
 
     GROUP_IS_DISBANDED(40018,"Group has been disbanded"),
 
