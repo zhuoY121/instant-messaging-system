@@ -1,7 +1,7 @@
 package com.zhuo.im.service.message.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.zhuo.im.codec.pack.message.ChatMessageAck;
+import com.zhuo.im.codec.pack.message.MessageReceiveServerAckPack;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.enums.command.MessageCommand;
 import com.zhuo.im.common.model.ClientInfo;
@@ -73,7 +73,11 @@ public class P2PMessageService {
             senderSync(messageContent, messageContent);
 
             // 3. Send messages to all clients of the other party
-            sendToTarget(messageContent);
+            List<ClientInfo> clientInfos = sendToTarget(messageContent);
+            if (clientInfos.isEmpty()) {
+                // If all clients of the other party are offline, then it is necessary to indicate that this ACK was sent by the server.
+                receiveAck(messageContent);
+            }
         });
     }
 
@@ -100,8 +104,8 @@ public class P2PMessageService {
         messageProducer.sendToUserClientsExceptOne(messageContent.getFromId(), MessageCommand.MSG_P2P, messageContent, messageContent);
     }
 
-    private void sendToTarget(MessageContent messageContent){
-        messageProducer.sendToUserClients(messageContent.getToId(), MessageCommand.MSG_P2P, messageContent, messageContent.getAppId());
+    private List<ClientInfo> sendToTarget(MessageContent messageContent){
+        return messageProducer.sendToUserClients(messageContent.getToId(), MessageCommand.MSG_P2P, messageContent, messageContent.getAppId());
     }
 
 
@@ -123,5 +127,16 @@ public class P2PMessageService {
         sendMessageResp.setMessageKey(messageContent.getMessageKey());
         sendMessageResp.setMessageTime(System.currentTimeMillis());
         return sendMessageResp;
+    }
+
+    public void receiveAck(MessageContent messageContent){
+
+        MessageReceiveServerAckPack pack = new MessageReceiveServerAckPack();
+        pack.setFromId(messageContent.getToId());
+        pack.setToId(messageContent.getFromId());
+        pack.setMessageKey(messageContent.getMessageKey());
+        pack.setServerSend(true);
+        ClientInfo clientInfo = new ClientInfo(messageContent.getAppId(), messageContent.getClientType(), messageContent.getImei());
+        messageProducer.sendToUserClient(messageContent.getFromId(), MessageCommand.MSG_RECEIVE_ACK, pack, clientInfo);
     }
 }

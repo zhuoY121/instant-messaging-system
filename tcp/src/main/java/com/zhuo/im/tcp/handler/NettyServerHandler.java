@@ -154,4 +154,11 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
 
     }
 
+    // Indicates that the channel is inactive, that is, the user is offline
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        SessionSocketHolder.userSessionOffline((NioSocketChannel) ctx.channel());
+        ctx.close();
+    }
+
 }

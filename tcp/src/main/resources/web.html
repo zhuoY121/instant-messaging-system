@@ -451,9 +451,10 @@
                 // data.conversationId = "0_" + data.toId + "_" + data.fromId;
                 // data.conversationType = 0;
 
-                if(userId != data.fromId){
+                // if(userId != data.fromId){
+                if(true){
                     var rAck = {
-                        "fromId":userId,
+                        "fromId":data.toId,
                         "toId":data.fromId,
                         "messageKey":data.messageKey,
                         "messageId":data.messageId,

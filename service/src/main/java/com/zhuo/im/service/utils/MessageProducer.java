@@ -74,11 +74,18 @@ public class MessageProducer {
     }
 
     // Send to all clients
-    public void sendToUserClients(String toId, Command command, Object data, Integer appId) {
+    public List<ClientInfo> sendToUserClients(String toId, Command command, Object data, Integer appId) {
+
         List<UserSession> userSession = userSessionUtils.getUserSession(appId, toId);
+
+        List<ClientInfo> list = new ArrayList<>();
         for (UserSession session : userSession) {
-            sendPack(toId, command, data, session);
+            boolean success = sendPack(toId, command, data, session);
+            if (success) {
+                list.add(new ClientInfo(session.getAppId(), session.getClientType(), session.getImei()));
+            }
         }
+        return list;
     }
 
     // Send to a specified client of a user

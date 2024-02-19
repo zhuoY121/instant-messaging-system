@@ -6,6 +6,8 @@ import com.rabbitmq.client.Channel;
 import com.zhuo.im.common.constant.Constants;
 import com.zhuo.im.common.enums.command.MessageCommand;
 import com.zhuo.im.common.model.message.MessageContent;
+import com.zhuo.im.common.model.message.MessageReceiveAckContent;
+import com.zhuo.im.service.message.service.MessageSyncService;
 import com.zhuo.im.service.message.service.P2PMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,9 @@ public class ChatMessageReceiver {
     @Autowired
     P2PMessageService p2pMessageService;
 
+    @Autowired
+    MessageSyncService messageSyncService;
+
     @RabbitListener(
             bindings = @QueueBinding(
                  value = @Queue(value = Constants.RabbitmqConstants.Im2MessageService, durable = "true"),
@@ -56,6 +61,11 @@ public class ChatMessageReceiver {
                 // Process message
                 MessageContent messageContent = jsonObject.toJavaObject(MessageContent.class);
                 p2pMessageService.process(messageContent);
+
+            } else if(command.equals(MessageCommand.MSG_RECEIVE_ACK.getCommand())) {
+                // Message reception confirmation
+                MessageReceiveAckContent messageContent = jsonObject.toJavaObject(MessageReceiveAckContent.class);
+                messageSyncService.markReceived(messageContent);
 
             }
 
