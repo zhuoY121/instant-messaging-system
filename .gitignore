@@ -33,3 +33,4 @@ build/
 .vscode/
 
 logs/
+/message-storage/src/main/resources/application-dev.yml

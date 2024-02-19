@@ -60,7 +60,7 @@ public enum GroupEventCommand implements Command {
      */
     MUTE_GROUP_MEMBER(2010),
 
-    // Group Message
+    // Group Message. 2104
     GROUP_MSG(0x838),
 
     // The group message status is read. 2106
