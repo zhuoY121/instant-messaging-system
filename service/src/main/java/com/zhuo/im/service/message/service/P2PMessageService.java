@@ -3,11 +3,14 @@ package com.zhuo.im.service.message.service;
 import com.zhuo.im.codec.pack.message.ChatMessageAck;
 import com.zhuo.im.codec.pack.message.MessageReceiveServerAckPack;
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.constant.Constants;
 import com.zhuo.im.common.enums.command.MessageCommand;
 import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.common.model.message.MessageContent;
 import com.zhuo.im.service.message.model.req.SendMessageReq;
 import com.zhuo.im.service.message.model.resp.SendMessageResp;
+import com.zhuo.im.service.seq.RedisSeq;
+import com.zhuo.im.service.utils.GenerateConversationId;
 import com.zhuo.im.service.utils.MessageProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +43,9 @@ public class P2PMessageService {
     @Autowired
     MessageStoreService messageStoreService;
 
+    @Autowired
+    RedisSeq redisSeq;
+
     private final ThreadPoolExecutor threadPoolExecutor;
 
     {
@@ -64,6 +70,13 @@ public class P2PMessageService {
         Integer appId = messageContent.getAppId();
 
         threadPoolExecutor.execute(() -> {
+
+            // Ensure the orderliness of the messages: Get the message seq to sort the messages.
+            long seq = redisSeq.doGetSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.Message + ":" +
+                    GenerateConversationId.generateP2PId(messageContent.getFromId(), messageContent.getToId()));
+            messageContent.setMessageSequence(seq);
+
+            // Save the message to DB
             messageStoreService.storeP2PMessage(messageContent);
 
             // 1. Send ACK success to yourself
@@ -95,7 +108,7 @@ public class P2PMessageService {
     private void ack(MessageContent messageContent, ResponseVO responseVO) {
 
         logger.info("Msg ack: msgId={}, checkResult={}",messageContent.getMessageId(),responseVO.getCode());
-        ChatMessageAck chatMessageAck = new ChatMessageAck(messageContent.getMessageId());
+        ChatMessageAck chatMessageAck = new ChatMessageAck(messageContent.getMessageId(), messageContent.getMessageSequence());
         responseVO.setData(chatMessageAck);
         messageProducer.sendToUserClient(messageContent.getFromId(), MessageCommand.MSG_ACK, responseVO, messageContent);
     }

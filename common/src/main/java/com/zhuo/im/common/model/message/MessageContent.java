@@ -24,4 +24,5 @@ public class MessageContent extends ClientInfo {
 
     private Long messageKey;
 
+    private long messageSequence;
 }

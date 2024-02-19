@@ -91,4 +91,10 @@ public class Constants {
         public static final String DeleteGroupMemberAfter = "group.member.delete.after";
     }
 
+
+    public static class SeqConstants {
+
+        public static final String Message = "messageSeq";
+
+    }
 }
