@@ -64,28 +64,21 @@ public class GroupMessageService {
         String groupId = messageContent.getGroupId();
         Integer appId = messageContent.getAppId();
 
-        // Check permission
-        ResponseVO responseVO = imServerCheckPermission(fromId, groupId, appId);
-        if (responseVO.isOk()) {
 
-            threadPoolExecutor.execute(() -> {
-                // Save to DB
-                messageStoreService.storeGroupMessage(messageContent);
+        threadPoolExecutor.execute(() -> {
+            // Save to DB
+            messageStoreService.storeGroupMessage(messageContent);
 
-                // 1. Send ACK success to yourself
-                ack(messageContent, responseVO);
+            // 1. Send ACK success to yourself
+            ack(messageContent, ResponseVO.successResponse());
 
-                // 2. Send messages to your other clients who are online at the same time
-                senderSync(messageContent, messageContent);
+            // 2. Send messages to your other clients who are online at the same time
+            senderSync(messageContent, messageContent);
 
-                // 3. Send messages to all clients of the other party
-                sendToTarget(messageContent);
-            });
+            // 3. Send messages to all clients of the other party
+            sendToTarget(messageContent);
+        });
 
-        } else {
-            // Tell the client that sending the message failed
-            ack(messageContent, responseVO);
-        }
     }
 
     public ResponseVO imServerCheckPermission(String fromId, String toId, Integer appId){
