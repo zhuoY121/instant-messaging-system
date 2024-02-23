@@ -69,24 +69,52 @@ public class P2PMessageService {
         String toId = messageContent.getToId();
         Integer appId = messageContent.getAppId();
 
+        // Get message from cache using messageId
+        MessageContent messageFromMessageIdCache = messageStoreService.getMessageFromMessageIdCache(
+                messageContent.getAppId(), messageContent.getMessageId(), MessageContent.class);
+        if (messageFromMessageIdCache != null) {
+            threadPoolExecutor.execute(() ->{
+                // Use messageFromMessageIdCache instead of messageContent because messageContent may not contain "seq".
+
+                // 1. Send ACK success to the sender
+                ack(messageFromMessageIdCache, ResponseVO.successResponse());
+
+                // 2. Send messages to sender's other clients who are online at the same time
+                senderSync(messageFromMessageIdCache, messageFromMessageIdCache);
+
+                // 3. Send messages to all clients of the other party
+                List<ClientInfo> clientInfos = sendToTarget(messageFromMessageIdCache);
+                if (clientInfos.isEmpty()) {
+                    // If all clients of the other party are offline, then it is necessary to indicate that this ACK was sent by the server.
+                    receiveAck(messageFromMessageIdCache);
+                }
+            });
+            return;
+        }
+
+        // Ensure the orderliness of the messages: Get the message seq to sort the messages.
+        long seq = redisSeq.doGetSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.Message + ":" +
+                GenerateConversationId.generateP2PId(messageContent.getFromId(), messageContent.getToId()));
+        messageContent.setMessageSequence(seq);
+
+
         threadPoolExecutor.execute(() -> {
-
-            // Ensure the orderliness of the messages: Get the message seq to sort the messages.
-            long seq = redisSeq.doGetSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.Message + ":" +
-                    GenerateConversationId.generateP2PId(messageContent.getFromId(), messageContent.getToId()));
-            messageContent.setMessageSequence(seq);
-
             // Save the message to DB
             messageStoreService.storeP2PMessage(messageContent);
 
-            // 1. Send ACK success to yourself
+            // 1. Send ACK success to the sender
             ack(messageContent, ResponseVO.successResponse());
 
-            // 2. Send messages to your other clients who are online at the same time
+            // 2. Send messages to sender's other clients who are online at the same time
             senderSync(messageContent, messageContent);
 
             // 3. Send messages to all clients of the other party
             List<ClientInfo> clientInfos = sendToTarget(messageContent);
+
+            // Save messageId in cache.
+            messageStoreService.setMessageFromMessageIdCache(messageContent.getAppId(), messageContent.getMessageId(),messageContent);
+
+            // Check the feedback from target clients.
             if (clientInfos.isEmpty()) {
                 // If all clients of the other party are offline, then it is necessary to indicate that this ACK was sent by the server.
                 receiveAck(messageContent);

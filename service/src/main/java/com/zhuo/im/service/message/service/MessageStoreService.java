@@ -6,10 +6,14 @@ import com.zhuo.im.common.enums.DelFlagEnum;
 import com.zhuo.im.common.model.message.*;
 import com.zhuo.im.service.group.dao.mapper.ImGroupMessageHistoryMapper;
 import com.zhuo.im.service.utils.SnowflakeIdWorker;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description:
@@ -26,6 +30,9 @@ public class MessageStoreService {
 
     @Autowired
     RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
 
     @Transactional
     public void storeP2PMessage(MessageContent messageContent){
@@ -69,4 +76,20 @@ public class MessageStoreService {
         messageContent.setMessageKey(imMessageBody.getMessageKey());
     }
 
+    public void setMessageFromMessageIdCache(Integer appId, String messageId, Object messageContent){
+        // appid : cache : messageId
+        String key = appId + ":" + Constants.RedisConstants.cacheMessage + ":" + messageId;
+        stringRedisTemplate.opsForValue().set(key,JSONObject.toJSONString(messageContent),300, TimeUnit.SECONDS);
+    }
+
+    public <T> T getMessageFromMessageIdCache(Integer appId, String messageId, Class<T> clazz){
+
+        // appid : cache : messageId
+        String key = appId + ":" + Constants.RedisConstants.cacheMessage + ":" + messageId;
+        String msg = stringRedisTemplate.opsForValue().get(key);
+        if (StringUtils.isBlank(msg)) {
+            return null;
+        }
+        return JSONObject.parseObject(msg, clazz);
+    }
 }

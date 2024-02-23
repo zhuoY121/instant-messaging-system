@@ -45,6 +45,11 @@ public class Constants {
          */
         public static final String userSignature = "userSignature";
 
+        /**
+         * Cache client messages to prevent duplication. Format： appId + :cacheMessage: + messageId
+         */
+        public static final String cacheMessage = "cacheMessage";
+
     }
 
     public static class RabbitmqConstants {
