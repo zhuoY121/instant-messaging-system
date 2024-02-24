@@ -105,7 +105,7 @@ public class MessageStoreService {
     }
 
     /**
-     * @description Use zSet to Store offline messages for the private chat in Redis
+     * @description Utilize a zSet in Redis to store offline messages for the private chat. Employ the messageKey as the score.
      */
     public void storeOfflineMessage(OfflineMessageContent offlineMessage){
 
@@ -137,7 +137,7 @@ public class MessageStoreService {
     }
 
     /**
-     * @description Use zSet to store offline messages for the group chat in Redis
+     * @description Utilize a zSet in Redis to store offline messages for the group chat. Employ the messageKey as the score.
      */
     public void storeGroupOfflineMessage(OfflineMessageContent offlineMessage, List<String> memberIdList){
 
