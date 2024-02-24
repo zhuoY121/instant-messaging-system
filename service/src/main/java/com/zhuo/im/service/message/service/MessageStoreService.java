@@ -1,18 +1,23 @@
 package com.zhuo.im.service.message.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.zhuo.im.common.config.AppConfig;
 import com.zhuo.im.common.constant.Constants;
+import com.zhuo.im.common.enums.ConversationTypeEnum;
 import com.zhuo.im.common.enums.DelFlagEnum;
 import com.zhuo.im.common.model.message.*;
+import com.zhuo.im.service.conversation.service.ConversationService;
 import com.zhuo.im.service.group.dao.mapper.ImGroupMessageHistoryMapper;
 import com.zhuo.im.service.utils.SnowflakeIdWorker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,6 +38,12 @@ public class MessageStoreService {
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    ConversationService conversationService;
+
+    @Autowired
+    AppConfig appConfig;
 
     @Transactional
     public void storeP2PMessage(MessageContent messageContent){
@@ -92,4 +103,58 @@ public class MessageStoreService {
         }
         return JSONObject.parseObject(msg, clazz);
     }
+
+    /**
+     * @description Use zSet to Store offline messages for the private chat in Redis
+     */
+    public void storeOfflineMessage(OfflineMessageContent offlineMessage){
+
+        ZSetOperations<String, String> operations = stringRedisTemplate.opsForZSet();
+
+        // Process "fromId" queue
+        String fromKey = offlineMessage.getAppId() + ":" + Constants.RedisConstants.OfflineMessage + ":" + offlineMessage.getFromId();
+        // Determine whether the data in the queue exceeds the set value
+        if (operations.zCard(fromKey) > appConfig.getOfflineMessageCount()) {
+            operations.removeRange(fromKey,0,0);
+        }
+
+        offlineMessage.setConversationId(conversationService.generateConversationId(
+                ConversationTypeEnum.P2P.getCode(), offlineMessage.getFromId(), offlineMessage.getToId()
+        ));
+        operations.add(fromKey, JSONObject.toJSONString(offlineMessage), offlineMessage.getMessageKey());
+
+        // Process "toId" queue
+        String toKey = offlineMessage.getAppId() + ":" + Constants.RedisConstants.OfflineMessage + ":" + offlineMessage.getToId();
+        // Determine whether the data in the queue exceeds the set value
+        if (operations.zCard(toKey) > appConfig.getOfflineMessageCount()) {
+            operations.removeRange(toKey,0,0);
+        }
+
+        offlineMessage.setConversationId(conversationService.generateConversationId(
+                ConversationTypeEnum.P2P.getCode(), offlineMessage.getToId(), offlineMessage.getFromId()
+        ));
+        operations.add(toKey, JSONObject.toJSONString(offlineMessage), offlineMessage.getMessageKey());
+    }
+
+    /**
+     * @description Use zSet to store offline messages for the group chat in Redis
+     */
+    public void storeGroupOfflineMessage(OfflineMessageContent offlineMessage, List<String> memberIdList){
+
+        ZSetOperations<String, String> operations = stringRedisTemplate.opsForZSet();
+        offlineMessage.setConversationType(ConversationTypeEnum.GROUP.getCode());
+
+        for (String memberId : memberIdList) {
+            String toKey = offlineMessage.getAppId() + ":" + Constants.RedisConstants.OfflineMessage + ":" + memberId;
+            offlineMessage.setConversationId(conversationService.generateConversationId(
+                    ConversationTypeEnum.GROUP.getCode(), memberId, offlineMessage.getToId()
+            ));
+
+            if (operations.zCard(toKey) > appConfig.getOfflineMessageCount()) {
+                operations.removeRange(toKey,0,0);
+            }
+            operations.add(toKey, JSONObject.toJSONString(offlineMessage), offlineMessage.getMessageKey());
+        }
+    }
+
 }

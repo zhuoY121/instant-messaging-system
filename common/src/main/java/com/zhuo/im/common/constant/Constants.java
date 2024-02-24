@@ -50,6 +50,8 @@ public class Constants {
          */
         public static final String cacheMessage = "cacheMessage";
 
+        public static final String OfflineMessage = "offlineMessage";
+
     }
 
     public static class RabbitmqConstants {

@@ -56,4 +56,6 @@ public class AppConfig {
 
     private Integer deleteConversationSyncMode;
 
+    private Integer offlineMessageCount;
+
 }

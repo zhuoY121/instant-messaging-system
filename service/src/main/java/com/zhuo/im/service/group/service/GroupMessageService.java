@@ -7,6 +7,7 @@ import com.zhuo.im.common.enums.command.GroupEventCommand;
 import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.common.model.message.GroupChatMessageContent;
 import com.zhuo.im.common.model.message.MessageContent;
+import com.zhuo.im.common.model.message.OfflineMessageContent;
 import com.zhuo.im.service.group.model.req.SendGroupMessageReq;
 import com.zhuo.im.service.message.model.resp.SendMessageResp;
 import com.zhuo.im.service.message.service.CheckSendMessageService;
@@ -93,6 +94,15 @@ public class GroupMessageService {
         threadPoolExecutor.execute(() -> {
             // Save to DB
             messageStoreService.storeGroupMessage(messageContent);
+
+            // Save offline messages
+            List<String> groupMemberIdList = imGroupMemberService.getGroupMemberIdList(messageContent.getGroupId(), messageContent.getAppId());
+            messageContent.setMemberId(groupMemberIdList);
+
+            OfflineMessageContent offlineMessageContent = new OfflineMessageContent();
+            BeanUtils.copyProperties(messageContent, offlineMessageContent);
+            offlineMessageContent.setToId(messageContent.getGroupId());
+            messageStoreService.storeGroupOfflineMessage(offlineMessageContent, groupMemberIdList);
 
             // 1. Send ACK success to sender
             ack(messageContent, ResponseVO.successResponse());

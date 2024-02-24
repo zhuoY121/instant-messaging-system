@@ -4,9 +4,11 @@ import com.zhuo.im.codec.pack.message.ChatMessageAck;
 import com.zhuo.im.codec.pack.message.MessageReceiveServerAckPack;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.constant.Constants;
+import com.zhuo.im.common.enums.ConversationTypeEnum;
 import com.zhuo.im.common.enums.command.MessageCommand;
 import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.common.model.message.MessageContent;
+import com.zhuo.im.common.model.message.OfflineMessageContent;
 import com.zhuo.im.service.message.model.req.SendMessageReq;
 import com.zhuo.im.service.message.model.resp.SendMessageResp;
 import com.zhuo.im.service.seq.RedisSeq;
@@ -101,6 +103,12 @@ public class P2PMessageService {
         threadPoolExecutor.execute(() -> {
             // Save the message to DB
             messageStoreService.storeP2PMessage(messageContent);
+
+            // Save offline messages
+            OfflineMessageContent offlineMessageContent = new OfflineMessageContent();
+            BeanUtils.copyProperties(messageContent, offlineMessageContent);
+            offlineMessageContent.setConversationType(ConversationTypeEnum.P2P.getCode());
+            messageStoreService.storeOfflineMessage(offlineMessageContent);
 
             // 1. Send ACK success to the sender
             ack(messageContent, ResponseVO.successResponse());

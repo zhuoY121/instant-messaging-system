@@ -49,6 +49,7 @@ appConfig:
   sendMessageCheckBlacklist: true # Whether to verify the blacklist when sending a message
 
   deleteConversationSyncMode: 1 # 1=Sync to other clients
+  offlineMessageCount: 1000 # Number of offline messages stored
 
 httpclient:
   maxTotal: 100
