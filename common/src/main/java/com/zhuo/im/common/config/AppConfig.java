@@ -54,4 +54,6 @@ public class AppConfig {
 
     private boolean sendMessageCheckBlacklist;
 
+    private Integer deleteConversationSyncMode;
+
 }

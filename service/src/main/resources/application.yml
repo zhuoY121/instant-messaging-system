@@ -48,6 +48,8 @@ appConfig:
   sendMessageCheckFriendship: true # Whether to verify the friendship when sending a message
   sendMessageCheckBlacklist: true # Whether to verify the blacklist when sending a message
 
+  deleteConversationSyncMode: 1 # 1=Sync to other clients
+
 httpclient:
   maxTotal: 100
   defaultMaxPerRoute: 50

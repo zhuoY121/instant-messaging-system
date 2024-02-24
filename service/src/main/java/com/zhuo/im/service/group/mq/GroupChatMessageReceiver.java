@@ -64,6 +64,7 @@ public class GroupChatMessageReceiver {
                 groupMessageService.process(messageContent);
 
             } else if (command.equals(GroupEventCommand.GROUP_MSG_READ.getCommand())) {
+                // The receiver reads the message.
                 MessageReadContent messageReadContent = JSON.parseObject(msg, new TypeReference<MessageReadContent>(){}.getType());
                 messageSyncService.groupMarkRead(messageReadContent);
             }

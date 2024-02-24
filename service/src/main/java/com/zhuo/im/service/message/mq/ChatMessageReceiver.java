@@ -69,7 +69,7 @@ public class ChatMessageReceiver {
                 messageSyncService.markReceived(messageContent);
 
             } else if(command.equals(MessageCommand.MSG_READ.getCommand())){
-                // The receiver has read the message.
+                // The receiver reads the message.
                 MessageReadContent messageContent = jsonObject.toJavaObject(MessageReadContent.class);
                 messageSyncService.markRead(messageContent);
             }
