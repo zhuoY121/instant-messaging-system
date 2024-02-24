@@ -6,6 +6,7 @@ import com.rabbitmq.client.Channel;
 import com.zhuo.im.common.constant.Constants;
 import com.zhuo.im.common.enums.command.MessageCommand;
 import com.zhuo.im.common.model.message.MessageContent;
+import com.zhuo.im.common.model.message.MessageReadContent;
 import com.zhuo.im.common.model.message.MessageReceiveAckContent;
 import com.zhuo.im.service.message.service.MessageSyncService;
 import com.zhuo.im.service.message.service.P2PMessageService;
@@ -67,6 +68,10 @@ public class ChatMessageReceiver {
                 MessageReceiveAckContent messageContent = jsonObject.toJavaObject(MessageReceiveAckContent.class);
                 messageSyncService.markReceived(messageContent);
 
+            } else if(command.equals(MessageCommand.MSG_READ.getCommand())){
+                // The receiver has read the message.
+                MessageReadContent messageContent = jsonObject.toJavaObject(MessageReadContent.class);
+                messageSyncService.markRead(messageContent);
             }
 
             channel.basicAck(deliveryTag, false);

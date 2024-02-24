@@ -11,13 +11,13 @@ public enum MessageCommand implements Command {
     // Message received ack 1107
     MSG_RECEIVE_ACK(1107),
 
-    // Send message read 1106
+    // Send message read. 1106
     MSG_READ(0x452),
 
-    // Notify the synchronization terminal that the message has been read 1053
+    // Notify the synchronization terminal that the message has been read. 1053
     MSG_READ_NOTIFICATION(0x41D),
 
-    // Message read receipt, given to the original message sender 1054
+    // Message read receipt, send to the original message sender. 1054
     MSG_READ_RECEIPT(0x41E),
 
     // Message withdrawn 1050

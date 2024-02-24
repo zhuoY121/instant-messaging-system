@@ -103,5 +103,7 @@ public class Constants {
 
         public static final String GroupMessage = "groupMessageSeq";
 
+        public static final String Conversation = "conversationSeq";
+
     }
 }

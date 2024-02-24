@@ -2,11 +2,14 @@ package com.zhuo.im.service.group.mq;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.rabbitmq.client.Channel;
 import com.zhuo.im.common.constant.Constants;
 import com.zhuo.im.common.enums.command.GroupEventCommand;
 import com.zhuo.im.common.model.message.GroupChatMessageContent;
+import com.zhuo.im.common.model.message.MessageReadContent;
 import com.zhuo.im.service.group.service.GroupMessageService;
+import com.zhuo.im.service.message.service.MessageSyncService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -34,6 +37,8 @@ public class GroupChatMessageReceiver {
     @Autowired
     GroupMessageService groupMessageService;
 
+    @Autowired
+    MessageSyncService messageSyncService;
 
     @RabbitListener(
             bindings = @QueueBinding(
@@ -58,6 +63,9 @@ public class GroupChatMessageReceiver {
                 GroupChatMessageContent messageContent = jsonObject.toJavaObject(GroupChatMessageContent.class);
                 groupMessageService.process(messageContent);
 
+            } else if (command.equals(GroupEventCommand.GROUP_MSG_READ.getCommand())) {
+                MessageReadContent messageReadContent = JSON.parseObject(msg, new TypeReference<MessageReadContent>(){}.getType());
+                messageSyncService.groupMarkRead(messageReadContent);
             }
 
             channel.basicAck(deliveryTag, false);

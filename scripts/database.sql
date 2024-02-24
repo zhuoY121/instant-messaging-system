@@ -204,7 +204,22 @@ CREATE TABLE `im_group_message_history`  (
     PRIMARY KEY (`app_id`, `group_id`, `message_key`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
-
+-- ----------------------------
+-- Table structure for im_conversation_set
+-- ----------------------------
+DROP TABLE IF EXISTS `im_conversation_set`;
+CREATE TABLE `im_conversation_set`  (
+    `conversation_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    `conversation_type` int(10) NULL DEFAULT NULL COMMENT '0=Private chat; 1=Group chat; 2=Robot.',
+    `from_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+    `to_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+    `muted` int(10) NULL DEFAULT NULL COMMENT 'Whether to mute the message notifications. 1=muted',
+    `is_top` int(10) NULL DEFAULT NULL COMMENT 'Whether to pin it to the top. 1=Pin it to the top',
+    `sequence` bigint(20) NULL DEFAULT NULL COMMENT 'sequence',
+    `read_sequence` bigint(20) NULL DEFAULT NULL,
+    `app_id` int(10) NOT NULL,
+    PRIMARY KEY (`app_id`, `conversation_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
 SET FOREIGN_KEY_CHECKS = 1;
