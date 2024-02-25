@@ -125,9 +125,21 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
         if (data.getFriendAllowType() != null && data.getFriendAllowType() == AllowFriendTypeEnum.NO_NEED.getCode()) {
             return this.doAddFriendship(req, req.getFromId(), req.getToItem(), req.getAppId());
         } else {
-            ResponseVO responseVO = imFriendshipRequestService.addFriendshipRequest(req.getFromId(), req.getToItem(), req.getAppId());
-            if (!responseVO.isOk()) {
-                return responseVO;
+
+            // Check whether the target is already your friend before sending AddFriendshipRequest.
+            QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
+            query.eq("app_id",req.getAppId());
+            query.eq("from_id",req.getFromId());
+            query.eq("to_id",req.getToItem().getToId());
+            ImFriendshipEntity fromItem = imFriendshipMapper.selectOne(query);
+
+            if (fromItem == null || fromItem.getStatus() != FriendshipStatusEnum.FRIEND_STATUS_NORMAL.getCode()) {
+                ResponseVO responseVO = imFriendshipRequestService.addFriendshipRequest(req.getFromId(), req.getToItem(), req.getAppId());
+                if (!responseVO.isOk()) {
+                    return responseVO;
+                }
+            } else {
+                return ResponseVO.errorResponse(FriendshipErrorCode.TO_IS_YOUR_FRIEND);
             }
         }
 
