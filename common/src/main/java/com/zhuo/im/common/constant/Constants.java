@@ -52,6 +52,8 @@ public class Constants {
 
         public static final String OfflineMessage = "offlineMessage";
 
+        public static final String SeqPrefix = "seq";
+
     }
 
     public static class RabbitmqConstants {
@@ -104,6 +106,14 @@ public class Constants {
         public static final String Message = "messageSeq";
 
         public static final String GroupMessage = "groupMessageSeq";
+
+        public static final String Friendship = "friendshipSeq";
+
+        public static final String FriendshipRequest = "friendshipRequestSeq";
+
+        public static final String FriendshipGroup = "friendshipGroupSeq";
+
+        public static final String Group = "groupSeq";
 
         public static final String Conversation = "conversationSeq";
 
