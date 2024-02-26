@@ -131,8 +131,6 @@ public class ImFriendshipGroupServiceImpl implements ImFriendshipGroupService {
     @Transactional
     public ResponseVO deleteGroup(DeleteFriendshipGroupReq req) {
 
-        long seq = redisSeq.doGetSeq(req.getAppId() + ":" + Constants.SeqConstants.FriendshipGroup);
-
         for (String groupName : req.getGroupNames()) {
             QueryWrapper<ImFriendshipGroupEntity> query = new QueryWrapper<>();
             query.eq("group_name", groupName);
@@ -143,6 +141,8 @@ public class ImFriendshipGroupServiceImpl implements ImFriendshipGroupService {
             ImFriendshipGroupEntity entity = imFriendshipGroupMapper.selectOne(query);
 
             if (entity != null) {
+                long seq = redisSeq.doGetSeq(req.getAppId() + ":" + Constants.SeqConstants.FriendshipGroup);
+
                 ImFriendshipGroupEntity update = new ImFriendshipGroupEntity();
                 update.setGroupId(entity.getGroupId());
                 update.setDelFlag(DelFlagEnum.DELETE.getCode());

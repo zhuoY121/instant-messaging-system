@@ -198,12 +198,12 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
         query.eq("to_id", req.getToId());
         ImFriendshipEntity fromItem = imFriendshipMapper.selectOne(query);
 
-        long seq = redisSeq.doGetSeq(req.getAppId() + ":" + Constants.SeqConstants.Friendship);
-
         if (fromItem == null) {
             return ResponseVO.errorResponse(FriendshipErrorCode.TO_IS_NOT_YOUR_FRIEND);
         } else {
-            if (fromItem.getStatus() == FriendshipStatusEnum.FRIEND_STATUS_NORMAL.getCode()) {
+            if (fromItem.getStatus() != null && fromItem.getStatus() == FriendshipStatusEnum.FRIEND_STATUS_NORMAL.getCode()) {
+                long seq = redisSeq.doGetSeq(req.getAppId() + ":" + Constants.SeqConstants.Friendship);
+
                 ImFriendshipEntity update = new ImFriendshipEntity();
                 update.setStatus(FriendshipStatusEnum.FRIEND_STATUS_DELETED.getCode());
                 update.setFriendSequence(seq);
@@ -212,26 +212,26 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
 
                 writeUserSeq.writeUserSeq(req.getAppId(), req.getFromId(), Constants.SeqConstants.Friendship, seq);
 
+                // Send TCP notification
+                DeleteFriendPack deleteFriendPack = new DeleteFriendPack();
+                deleteFriendPack.setFromId(req.getFromId());
+                deleteFriendPack.setToId(req.getToId());
+                deleteFriendPack.setSequence(seq);
+                messageProducer.sendToUserClients(req.getFromId(), req.getClientType(), req.getImei(),
+                        FriendshipEventCommand.FRIEND_DELETE, deleteFriendPack, req.getAppId());
+
+                // After callback
+                if (appConfig.isDeleteFriendAfterCallback()) {
+                    DeleteFriendAfterCallbackDto callbackDto = new DeleteFriendAfterCallbackDto();
+                    callbackDto.setFromId(req.getFromId());
+                    callbackDto.setToId(req.getToId());
+
+                    callbackService.callback(req.getAppId(), Constants.CallbackCommand.DeleteFriendAfter, JSONObject.toJSONString(callbackDto));
+                }
+
             } else {
                 return ResponseVO.errorResponse(FriendshipErrorCode.FRIEND_IS_DELETED);
             }
-        }
-
-        // Send TCP notification
-        DeleteFriendPack deleteFriendPack = new DeleteFriendPack();
-        deleteFriendPack.setFromId(req.getFromId());
-        deleteFriendPack.setToId(req.getToId());
-        deleteFriendPack.setSequence(seq);
-        messageProducer.sendToUserClients(req.getFromId(), req.getClientType(), req.getImei(),
-                FriendshipEventCommand.FRIEND_DELETE, deleteFriendPack, req.getAppId());
-
-        // After callback
-        if (appConfig.isDeleteFriendAfterCallback()) {
-            DeleteFriendAfterCallbackDto callbackDto = new DeleteFriendAfterCallbackDto();
-            callbackDto.setFromId(req.getFromId());
-            callbackDto.setToId(req.getToId());
-
-            callbackService.callback(req.getAppId(), Constants.CallbackCommand.DeleteFriendAfter, JSONObject.toJSONString(callbackDto));
         }
 
         return ResponseVO.successResponse();
