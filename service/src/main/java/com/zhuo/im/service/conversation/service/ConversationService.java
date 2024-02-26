@@ -15,7 +15,9 @@ import com.zhuo.im.service.conversation.dao.ImConversationSetEntity;
 import com.zhuo.im.service.conversation.dao.mapper.ImConversationSetMapper;
 import com.zhuo.im.service.conversation.model.DeleteConversationReq;
 import com.zhuo.im.service.conversation.model.UpdateConversationReq;
+import com.zhuo.im.service.seq.RedisSeq;
 import com.zhuo.im.service.utils.MessageProducer;
+import com.zhuo.im.service.utils.WriteUserSeq;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,12 @@ public class ConversationService {
     @Autowired
     AppConfig appConfig;
 
+    @Autowired
+    RedisSeq redisSeq;
+
+    @Autowired
+    WriteUserSeq writeUserSeq;
+
 
     public String generateConversationId(Integer type, String fromId, String toId){
         return type + "_" + fromId + "_" + toId;
@@ -51,6 +59,8 @@ public class ConversationService {
         String conversationId = generateConversationId(messageReadContent.getConversationType(),
                 messageReadContent.getFromId(), toId);
 
+        long seq = redisSeq.doGetSeq(messageReadContent.getAppId() + ":" + Constants.SeqConstants.Conversation);
+
         QueryWrapper<ImConversationSetEntity> query = new QueryWrapper<>();
         query.eq("conversation_id", conversationId);
         query.eq("app_id", messageReadContent.getAppId());
@@ -61,12 +71,16 @@ public class ConversationService {
             imConversationSetEntity.setConversationId(conversationId);
             BeanUtils.copyProperties(messageReadContent, imConversationSetEntity);
             imConversationSetEntity.setReadSequence(messageReadContent.getMessageSequence());
+            imConversationSetEntity.setSequence(seq);
             imConversationSetMapper.insert(imConversationSetEntity);
 
         } else { // Update readSequence
             imConversationSetEntity.setReadSequence(messageReadContent.getMessageSequence());
+            imConversationSetEntity.setSequence(seq);
             imConversationSetMapper.markRead(imConversationSetEntity);
         }
+
+        writeUserSeq.writeUserSeq(messageReadContent.getAppId(), messageReadContent.getFromId(), Constants.SeqConstants.Conversation, seq);
     }
 
     public ResponseVO deleteConversation(DeleteConversationReq req){
@@ -105,15 +119,20 @@ public class ConversationService {
         ImConversationSetEntity imConversationSetEntity = imConversationSetMapper.selectOne(queryWrapper);
         if (imConversationSetEntity != null) {
 
+            long seq = redisSeq.doGetSeq(req.getAppId() + ":" + Constants.SeqConstants.Conversation);
+
             if (req.getIsTop() != null) {
                 imConversationSetEntity.setIsTop(req.getIsTop());
             }
             if (req.getMuted() != null) {
                 imConversationSetEntity.setMuted(req.getMuted());
             }
+            imConversationSetEntity.setSequence(seq);
 
             // Update DB
             imConversationSetMapper.update(imConversationSetEntity, queryWrapper);
+
+            writeUserSeq.writeUserSeq(req.getAppId(), req.getFromId(), Constants.SeqConstants.Conversation, seq);
 
             // Notify other clients
             UpdateConversationPack pack = new UpdateConversationPack();
@@ -121,6 +140,7 @@ public class ConversationService {
             pack.setMuted(imConversationSetEntity.getMuted());
             pack.setIsTop(imConversationSetEntity.getIsTop());
             pack.setConversationType(imConversationSetEntity.getConversationType());
+            pack.setSequence(seq);
             messageProducer.sendToUserClientsExceptOne(req.getFromId(), ConversationEventCommand.UPDATE_CONVERSATION,
                     pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
         }

@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface ImConversationSetMapper extends BaseMapper<ImConversationSetEntity> {
 
-    @Update(" update im_conversation_set set read_sequence = #{readSequence} " +
+    @Update(" update im_conversation_set set read_sequence = #{readSequence}, sequence = #{sequence} " +
     " where conversation_id = #{conversationId} and app_id = #{appId} AND read_sequence < #{readSequence}")
     public void markRead(ImConversationSetEntity imConversationSetEntity);
 
