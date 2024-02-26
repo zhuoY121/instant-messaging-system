@@ -65,11 +65,14 @@ public class ImFriendshipGroupMemberServiceImpl implements ImFriendshipGroupMemb
             }
         }
 
+        Long seq = imFriendshipGroupService.updateSeq(req.getFromId(), req.getGroupName(), req.getAppId());
+
         // Send tcp notification
         AddFriendGroupMemberPack pack = new AddFriendGroupMemberPack();
         pack.setFromId(req.getFromId());
         pack.setGroupName(req.getGroupName());
         pack.setToIds(successId);
+        pack.setSequence(seq);
         messageProducer.sendToUserClientsExceptOne(req.getFromId(), FriendshipEventCommand.FRIEND_GROUP_MEMBER_ADD,
                 pack,new ClientInfo(req.getAppId(),req.getClientType(),req.getImei()));
 
@@ -95,11 +98,14 @@ public class ImFriendshipGroupMemberServiceImpl implements ImFriendshipGroupMemb
             }
         }
 
+        Long seq = imFriendshipGroupService.updateSeq(req.getFromId(), req.getGroupName(), req.getAppId());
+
         // Send tcp notification
         DeleteFriendGroupMemberPack pack = new DeleteFriendGroupMemberPack();
         pack.setFromId(req.getFromId());
         pack.setGroupName(req.getGroupName());
         pack.setToIds(list);
+        pack.setSequence(seq);
         messageProducer.sendToUserClientsExceptOne(req.getFromId(), FriendshipEventCommand.FRIEND_GROUP_MEMBER_DELETE,
                 pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
