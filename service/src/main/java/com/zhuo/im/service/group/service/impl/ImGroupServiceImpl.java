@@ -25,6 +25,7 @@ import com.zhuo.im.service.group.model.resp.GetJoinedGroupResp;
 import com.zhuo.im.service.group.model.resp.GetRoleInGroupResp;
 import com.zhuo.im.service.group.service.ImGroupMemberService;
 import com.zhuo.im.service.group.service.ImGroupService;
+import com.zhuo.im.service.seq.RedisSeq;
 import com.zhuo.im.service.utils.CallbackService;
 import com.zhuo.im.service.utils.GroupMessageProducer;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +61,10 @@ public class ImGroupServiceImpl implements ImGroupService {
 
     @Autowired
     GroupMessageProducer groupMessageProducer;
+
+    @Autowired
+    RedisSeq redisSeq;
+
 
     @Override
     public ResponseVO importGroup(ImportGroupReq req) {
@@ -126,10 +131,13 @@ public class ImGroupServiceImpl implements ImGroupService {
             throw new ApplicationException(GroupErrorCode.PUBLIC_GROUP_MUST_HAVE_OWNER);
         }
 
+        long seq = redisSeq.doGetSeq(req.getAppId() + ":" + Constants.SeqConstants.Group);
+
         ImGroupEntity imGroupEntity = new ImGroupEntity();
         imGroupEntity.setCreateTime(System.currentTimeMillis());
         imGroupEntity.setStatus(GroupStatusEnum.NORMAL.getCode());
         BeanUtils.copyProperties(req, imGroupEntity);
+        imGroupEntity.setSequence(seq);
         int insert = imGroupMapper.insert(imGroupEntity);
 
         GroupMemberDto groupMemberDto = new GroupMemberDto();
@@ -221,9 +229,12 @@ public class ImGroupServiceImpl implements ImGroupService {
 
         }
 
+        long seq = redisSeq.doGetSeq(req.getAppId() + ":" + Constants.SeqConstants.Group);
+
         ImGroupEntity update = new ImGroupEntity();
         BeanUtils.copyProperties(req, update);
         update.setUpdateTime(System.currentTimeMillis());
+        update.setSequence(seq);
         int row = imGroupMapper.update(update, query);
         if (row != 1) {
             throw new ApplicationException(GroupErrorCode.UPDATE_GROUP_BASE_INFO_ERROR);
@@ -337,9 +348,11 @@ public class ImGroupServiceImpl implements ImGroupService {
             }
         }
 
-        ImGroupEntity update = new ImGroupEntity();
+        long seq = redisSeq.doGetSeq(req.getAppId() + ":" + Constants.SeqConstants.Group);
 
+        ImGroupEntity update = new ImGroupEntity();
         update.setStatus(GroupStatusEnum.DISBANDED.getCode());
+        update.setSequence(seq);
         int update1 = imGroupMapper.update(update, objectQueryWrapper);
         if (update1 != 1) {
             throw new ApplicationException(GroupErrorCode.UPDATE_GROUP_BASE_INFO_ERROR);
@@ -348,6 +361,7 @@ public class ImGroupServiceImpl implements ImGroupService {
         // Send tcp notification
         DeleteGroupPack pack = new DeleteGroupPack();
         pack.setGroupId(req.getGroupId());
+        pack.setSequence(seq);
         groupMessageProducer.producer(req.getOperator(), GroupEventCommand.DELETE_GROUP, pack,
                 new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
@@ -388,8 +402,11 @@ public class ImGroupServiceImpl implements ImGroupService {
             throw new ApplicationException(GroupErrorCode.GROUP_IS_DISBANDED);
         }
 
+        long seq = redisSeq.doGetSeq(req.getAppId() + ":" + Constants.SeqConstants.Group);
+
         ImGroupEntity updateGroup = new ImGroupEntity();
         updateGroup.setOwnerId(req.getOwnerId());
+        updateGroup.setSequence(seq);
         UpdateWrapper<ImGroupEntity> updateGroupWrapper = new UpdateWrapper<>();
         updateGroupWrapper.eq("app_id", req.getAppId());
         updateGroupWrapper.eq("group_id", req.getGroupId());
