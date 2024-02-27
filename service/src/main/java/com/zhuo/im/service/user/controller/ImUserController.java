@@ -5,6 +5,7 @@ import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.route.RouteHandler;
 import com.zhuo.im.common.route.RouteInfo;
 import com.zhuo.im.common.utils.RouteInfoParseUtils;
+import com.zhuo.im.service.user.model.req.GetUserSequenceReq;
 import com.zhuo.im.service.user.model.req.ImportUserReq;
 import com.zhuo.im.service.user.model.req.LoginReq;
 import com.zhuo.im.service.user.service.ImUserService;
@@ -63,5 +64,10 @@ public class ImUserController {
         return ResponseVO.successResponse(parse);
     }
 
+    @RequestMapping("/getUserSequences")
+    public ResponseVO getUserSequences(@RequestBody @Validated GetUserSequenceReq req, Integer appId) {
+        req.setAppId(appId);
+        return imUserService.getUserSequences(req);
+    }
 
 }

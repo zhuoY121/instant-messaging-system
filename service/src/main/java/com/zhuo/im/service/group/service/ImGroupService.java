@@ -31,4 +31,5 @@ public interface ImGroupService {
 
     ResponseVO syncJoinedGroups(SyncReq req);
 
+    Long getUserGroupMaxSeq(String userId, Integer appId);
 }

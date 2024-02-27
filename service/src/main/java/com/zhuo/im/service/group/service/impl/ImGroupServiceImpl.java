@@ -8,10 +8,7 @@ import com.zhuo.im.codec.pack.group.*;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.config.AppConfig;
 import com.zhuo.im.common.constant.Constants;
-import com.zhuo.im.common.enums.GroupErrorCode;
-import com.zhuo.im.common.enums.GroupMemberRoleEnum;
-import com.zhuo.im.common.enums.GroupStatusEnum;
-import com.zhuo.im.common.enums.GroupTypeEnum;
+import com.zhuo.im.common.enums.*;
 import com.zhuo.im.common.enums.command.GroupEventCommand;
 import com.zhuo.im.common.exception.ApplicationException;
 import com.zhuo.im.common.model.ClientInfo;
@@ -509,6 +506,17 @@ public class ImGroupServiceImpl implements ImGroupService {
         }
         resp.setCompleted(true);
         return ResponseVO.successResponse(resp);
+    }
+
+    @Override
+    public Long getUserGroupMaxSeq(String userId, Integer appId) {
+
+        ResponseVO<Collection<String>> JoinedGroups = groupMemberService.syncJoinedGroups(userId, appId);
+        if (!JoinedGroups.isOk()) {
+            throw new ApplicationException(SequenceErrorCode.NO_GROUPS);
+        }
+        Long maxSeq = imGroupMapper.getGroupMaxSeq(JoinedGroups.getData(), appId);
+        return maxSeq;
     }
 
 

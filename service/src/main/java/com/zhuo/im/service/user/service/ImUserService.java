@@ -19,4 +19,5 @@ public interface ImUserService {
 
     public ResponseVO login(LoginReq req);
 
+    ResponseVO getUserSequences(GetUserSequenceReq req);
 }
