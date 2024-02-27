@@ -3,6 +3,7 @@ package com.zhuo.im.service.friendship.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.zhuo.im.codec.pack.friendship.*;
 import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.config.AppConfig;
@@ -13,6 +14,8 @@ import com.zhuo.im.common.enums.FriendshipErrorCode;
 import com.zhuo.im.common.enums.FriendshipStatusEnum;
 import com.zhuo.im.common.enums.command.FriendshipEventCommand;
 import com.zhuo.im.common.model.RequestBase;
+import com.zhuo.im.common.model.SyncReq;
+import com.zhuo.im.common.model.SyncResp;
 import com.zhuo.im.service.friendship.dao.ImFriendshipEntity;
 import com.zhuo.im.service.friendship.dao.mapper.ImFriendshipMapper;
 import com.zhuo.im.service.friendship.model.callback.*;
@@ -627,4 +630,37 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
 
         return ResponseVO.successResponse();
     }
+
+    @Override
+    public ResponseVO syncFriendshipList(SyncReq req) {
+
+        if (req.getMaxLimit() > 100) {  // TODO: Use Enums
+            req.setMaxLimit(100);
+        }
+
+        QueryWrapper<ImFriendshipEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("app_id", req.getAppId());
+        queryWrapper.eq("from_id", req.getOperator());
+        queryWrapper.gt("friend_sequence", req.getLastSequence());
+        queryWrapper.last(" limit " + req.getMaxLimit());
+        queryWrapper.orderByAsc("friend_sequence");
+        List<ImFriendshipEntity> list = imFriendshipMapper.selectList(queryWrapper);
+
+        SyncResp<ImFriendshipEntity> resp = new SyncResp<>();
+        if (!CollectionUtils.isEmpty(list)) {
+            resp.setDataList(list);
+            // set max seq
+            Long friendshipMaxSeq = imFriendshipMapper.getFriendshipMaxSeq(req.getAppId(), req.getOperator());
+            resp.setMaxSequence(friendshipMaxSeq);
+            // set completed
+            ImFriendshipEntity maxSeqEntity = list.get(list.size() - 1);
+            resp.setCompleted(maxSeqEntity.getFriendSequence() >= friendshipMaxSeq);
+            return ResponseVO.successResponse(resp);
+        }
+
+        resp.setCompleted(true);
+        return ResponseVO.successResponse(resp);
+    }
+
+
 }

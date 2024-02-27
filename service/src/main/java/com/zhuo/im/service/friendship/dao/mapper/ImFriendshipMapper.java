@@ -81,6 +81,10 @@ public interface ImFriendshipMapper extends BaseMapper<ImFriendshipEntity> {
     )
     List<CheckFriendshipResp> checkFriendshipBlackBoth(CheckFriendshipReq toId);
 
+
+    @Select(" select max(friend_sequence) from im_friendship where app_id = #{appId} AND from_id = #{userId} ")
+    Long getFriendshipMaxSeq(Integer appId, String userId);
+
 }
 
 
