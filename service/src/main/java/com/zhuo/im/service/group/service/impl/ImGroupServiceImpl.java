@@ -15,6 +15,8 @@ import com.zhuo.im.common.enums.GroupTypeEnum;
 import com.zhuo.im.common.enums.command.GroupEventCommand;
 import com.zhuo.im.common.exception.ApplicationException;
 import com.zhuo.im.common.model.ClientInfo;
+import com.zhuo.im.common.model.SyncReq;
+import com.zhuo.im.common.model.SyncResp;
 import com.zhuo.im.service.friendship.model.callback.DeleteFriendBlackAfterCallbackDto;
 import com.zhuo.im.service.group.dao.ImGroupEntity;
 import com.zhuo.im.service.group.dao.mapper.ImGroupMapper;
@@ -472,6 +474,41 @@ public class ImGroupServiceImpl implements ImGroupService {
                 new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
         return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO syncJoinedGroups(SyncReq req) {
+
+        if (req.getMaxLimit() > 100) { // TODO: Use Enums
+            req.setMaxLimit(100);
+        }
+
+        SyncResp<ImGroupEntity> resp = new SyncResp<>();
+        ResponseVO<Collection<String>> joinedGroups = groupMemberService.syncJoinedGroups(req.getOperator(), req.getAppId());
+
+        if (joinedGroups.isOk()) {
+            Collection<String> data = joinedGroups.getData();
+            QueryWrapper<ImGroupEntity> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("app_id", req.getAppId());
+            queryWrapper.in("group_id", data);
+            queryWrapper.gt("sequence", req.getLastSequence());
+            queryWrapper.last(" limit " + req.getMaxLimit());
+            queryWrapper.orderByAsc("sequence");
+
+            List<ImGroupEntity> list = imGroupMapper.selectList(queryWrapper);
+
+            if (!CollectionUtils.isEmpty(list)) {
+                ImGroupEntity maxSeqEntity = list.get(list.size() - 1);
+                resp.setDataList(list);
+                Long maxSeq = imGroupMapper.getGroupMaxSeq(data, req.getAppId());
+                resp.setMaxSequence(maxSeq);
+                resp.setCompleted(maxSeqEntity.getSequence() >= maxSeq);
+                return ResponseVO.successResponse(resp);
+            }
+
+        }
+        resp.setCompleted(true);
+        return ResponseVO.successResponse(resp);
     }
 
 

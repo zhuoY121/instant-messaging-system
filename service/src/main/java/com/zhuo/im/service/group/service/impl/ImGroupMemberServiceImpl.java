@@ -614,5 +614,9 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
         return ResponseVO.successResponse();
     }
 
+    @Override
+    public ResponseVO<Collection<String>> syncJoinedGroups(String operator, Integer appId) {
+        return ResponseVO.successResponse(imGroupMemberMapper.syncJoinedGroupIdList(appId, operator, GroupMemberRoleEnum.LEFT.getCode()));
+    }
 
 }

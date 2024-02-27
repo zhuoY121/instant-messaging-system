@@ -41,4 +41,6 @@ public interface ImGroupMemberService {
     public ResponseVO updateGroupMember(UpdateGroupMemberReq req);
 
     public ResponseVO muteGroupMember(MuteGroupMemberReq req);
+
+    ResponseVO<Collection<String>> syncJoinedGroups(String operator, Integer appId);
 }

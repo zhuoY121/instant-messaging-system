@@ -1,6 +1,7 @@
 package com.zhuo.im.service.group.controller;
 
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.model.SyncReq;
 import com.zhuo.im.service.group.model.req.*;
 import com.zhuo.im.service.group.service.GroupMessageService;
 import com.zhuo.im.service.group.service.ImGroupService;
@@ -84,5 +85,11 @@ public class ImGroupController {
         req.setAppId(appId);
         req.setOperator(identifier);
         return ResponseVO.successResponse(groupMessageService.send(req));
+    }
+
+    @RequestMapping("/syncJoinedGroups")
+    public ResponseVO syncJoinedGroups(@RequestBody @Validated SyncReq req, Integer appId)  {
+        req.setAppId(appId);
+        return groupService.syncJoinedGroups(req);
     }
 }

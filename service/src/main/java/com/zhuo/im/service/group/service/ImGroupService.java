@@ -1,6 +1,7 @@
 package com.zhuo.im.service.group.service;
 
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.model.SyncReq;
 import com.zhuo.im.service.group.dao.ImGroupEntity;
 import com.zhuo.im.service.group.model.req.*;
 
@@ -27,4 +28,7 @@ public interface ImGroupService {
     public ResponseVO transferGroup(TransferGroupReq req);
 
     public ResponseVO muteGroup(MuteGroupReq req);
+
+    ResponseVO syncJoinedGroups(SyncReq req);
+
 }
