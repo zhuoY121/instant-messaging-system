@@ -68,6 +68,10 @@ public class Constants {
 
         public static final String StoreGroupMessage = "storeGroupMessage";
 
+        public static final String Im2FriendshipService = "pipeline2FriendshipService";
+
+        public static final String Im2UserService = "pipeline2UserService";
+
     }
 
 
