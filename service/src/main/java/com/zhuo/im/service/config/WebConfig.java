@@ -1,5 +1,6 @@
 package com.zhuo.im.service.config;
 
+import com.zhuo.im.common.config.AppConfig;
 import com.zhuo.im.service.interceptor.GatewayInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -17,12 +18,17 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     GatewayInterceptor gatewayInterceptor;
 
+    @Autowired
+    AppConfig appConfig;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(gatewayInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/v1/user/login")
-                .excludePathPatterns("/v1/message/checkSend");
+        if (appConfig.isInterceptorEnabled()) {
+            registry.addInterceptor(gatewayInterceptor)
+                    .addPathPatterns("/**")
+                    .excludePathPatterns("/v1/user/login")
+                    .excludePathPatterns("/v1/message/checkSend");
+        }
     }
 
     @Override

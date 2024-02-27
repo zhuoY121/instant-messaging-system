@@ -58,4 +58,6 @@ public class AppConfig {
 
     private Integer offlineMessageCount;
 
+    private boolean interceptorEnabled;
+
 }

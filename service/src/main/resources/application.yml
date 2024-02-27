@@ -51,6 +51,8 @@ appConfig:
   deleteConversationSyncMode: 1 # 1=Sync to other clients
   offlineMessageCount: 1000 # Number of offline messages stored
 
+  interceptorEnabled: false
+
 httpclient:
   maxTotal: 100
   defaultMaxPerRoute: 50
