@@ -54,6 +54,12 @@ public class Constants {
 
         public static final String SeqPrefix = "seq";
 
+        /**
+         * User subscription list
+         * Format: appId + :subscribe: + userId
+         */
+        public static final String subscribe = "subscribe";
+
     }
 
     public static class RabbitmqConstants {

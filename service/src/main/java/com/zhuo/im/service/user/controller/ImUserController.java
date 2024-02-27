@@ -8,7 +8,9 @@ import com.zhuo.im.common.utils.RouteInfoParseUtils;
 import com.zhuo.im.service.user.model.req.GetUserSequenceReq;
 import com.zhuo.im.service.user.model.req.ImportUserReq;
 import com.zhuo.im.service.user.model.req.LoginReq;
+import com.zhuo.im.service.user.model.req.SubscribeUserOnlineStatusReq;
 import com.zhuo.im.service.user.service.ImUserService;
+import com.zhuo.im.service.user.service.ImUserStatusService;
 import com.zhuo.im.service.utils.ZKit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +33,9 @@ public class ImUserController {
 
     @Autowired
     ZKit zKit;
+
+    @Autowired
+    ImUserStatusService imUserStatusService;
 
     @RequestMapping("importUser")
     public ResponseVO importUser(@RequestBody ImportUserReq req, Integer appId) {
@@ -68,6 +73,15 @@ public class ImUserController {
     public ResponseVO getUserSequences(@RequestBody @Validated GetUserSequenceReq req, Integer appId) {
         req.setAppId(appId);
         return imUserService.getUserSequences(req);
+    }
+
+    @RequestMapping("/subscribeUserOnlineStatus")
+    public ResponseVO subscribeUserOnlineStatus(@RequestBody @Validated SubscribeUserOnlineStatusReq req,
+                                                Integer appId, String identifier) {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        imUserStatusService.subscribeUserOnlineStatus(req);
+        return ResponseVO.successResponse();
     }
 
 }

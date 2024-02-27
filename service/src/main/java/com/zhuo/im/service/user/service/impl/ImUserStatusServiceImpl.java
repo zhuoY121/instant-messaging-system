@@ -9,6 +9,7 @@ import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.common.model.UserSession;
 import com.zhuo.im.service.friendship.service.ImFriendshipService;
 import com.zhuo.im.service.user.model.UserStatusChangeNotificationContent;
+import com.zhuo.im.service.user.model.req.SubscribeUserOnlineStatusReq;
 import com.zhuo.im.service.user.service.ImUserStatusService;
 import com.zhuo.im.service.utils.MessageProducer;
 import com.zhuo.im.service.utils.UserSessionUtils;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -52,8 +54,29 @@ public class ImUserStatusServiceImpl implements ImUserStatusService {
         // Send to other clients of your own
         syncSender(userStatusChangeNotifyPack, content.getUserId(), content);
 
-        // Synchronize to friends
+        // Synchronize to friends and people who have subscribed to you
         sendToTargets(userStatusChangeNotifyPack, content.getUserId(), content.getAppId());
+    }
+
+    /**
+     * The data structure in Redis is "publisher: [subscriber: expire_time, ...]"
+     * If A subscribes to B and C, then in Redis:
+     * B: [A: expire_time, ...]
+     * C: [A: expire_time, ...]
+     * @param req
+     */
+    @Override
+    public void subscribeUserOnlineStatus(SubscribeUserOnlineStatusReq req) {
+
+        Long subExpireTime = 0L;
+        if (req != null && req.getSubTime() > 0) {
+            subExpireTime = System.currentTimeMillis() + req.getSubTime();
+        }
+
+        for (String beSubUserId : req.getSubUserIdList()) {
+            String userKey = req.getAppId() + ":" + Constants.RedisConstants.subscribe + ":" + beSubUserId;
+            stringRedisTemplate.opsForHash().put(userKey, req.getOperator(), subExpireTime.toString());
+        }
     }
 
     private void syncSender(Object pack, String userId, ClientInfo clientInfo){
@@ -69,6 +92,19 @@ public class ImUserStatusServiceImpl implements ImUserStatusService {
             messageProducer.sendToUserClients(fid,UserEventCommand.USER_ONLINE_STATUS_CHANGE_NOTIFICATION, pack, appId);
         }
 
+        // Send to people who have temporarily subscribed
+        String userKey = appId + ":" + Constants.RedisConstants.subscribe + ":" + userId;
+        Set<Object> keys = stringRedisTemplate.opsForHash().keys(userKey);
+        for (Object key : keys) {
+            String subscriber = (String) key;
+            long expireTime = Long.parseLong((String) Objects.requireNonNull(stringRedisTemplate.opsForHash().get(userKey, subscriber)));
+
+            if (expireTime > 0 && expireTime > System.currentTimeMillis()) {
+                messageProducer.sendToUserClients(subscriber, UserEventCommand.USER_ONLINE_STATUS_CHANGE_NOTIFICATION, pack, appId);
+            } else { // Expired
+                stringRedisTemplate.opsForHash().delete(userKey, subscriber);
+            }
+        }
     }
 
 
