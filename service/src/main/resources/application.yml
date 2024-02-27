@@ -51,7 +51,7 @@ appConfig:
   deleteConversationSyncMode: 1 # 1=Sync to other clients
   offlineMessageCount: 1000 # Number of offline messages stored
 
-  interceptorEnabled: false
+  interceptorEnabled: false # Control whether to enable the interceptor to facilitate testing
 
 httpclient:
   maxTotal: 100
