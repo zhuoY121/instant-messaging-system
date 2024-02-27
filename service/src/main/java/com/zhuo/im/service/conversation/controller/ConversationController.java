@@ -1,6 +1,7 @@
 package com.zhuo.im.service.conversation.controller;
 
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.model.SyncReq;
 import com.zhuo.im.service.conversation.model.DeleteConversationReq;
 import com.zhuo.im.service.conversation.model.UpdateConversationReq;
 import com.zhuo.im.service.conversation.service.ConversationService;
@@ -36,5 +37,10 @@ public class ConversationController {
         return conversationService.updateConversation(req);
     }
 
+    @RequestMapping("/syncConversationList")
+    public ResponseVO syncFriendShipList(@RequestBody @Validated SyncReq req, Integer appId)  {
+        req.setAppId(appId);
+        return conversationService.syncConversationSet(req);
+    }
 
 }

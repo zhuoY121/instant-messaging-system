@@ -3,6 +3,7 @@ package com.zhuo.im.service.conversation.dao.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zhuo.im.service.conversation.dao.ImConversationSetEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 /**
@@ -15,5 +16,8 @@ public interface ImConversationSetMapper extends BaseMapper<ImConversationSetEnt
     @Update(" update im_conversation_set set read_sequence = #{readSequence}, sequence = #{sequence} " +
     " where conversation_id = #{conversationId} and app_id = #{appId} AND read_sequence < #{readSequence}")
     public void markRead(ImConversationSetEntity imConversationSetEntity);
+
+    @Select(" select max(sequence) from im_conversation_set where app_id = #{appId} AND from_id = #{userId} ")
+    Long getConversationSetMaxSeq(Integer appId, String userId);
 
 }
