@@ -20,20 +20,10 @@ public class MqMessageProducer {
 
     public static void sendMessage(Message message, Integer command){
 
-        Channel channel = null;
-        String com = command.toString();
-        String commandSub = com.substring(0, 1);
-        CommandType commandType = CommandType.getCommandType(commandSub);
-
-        String channelName = "";
-        if (commandType == CommandType.MESSAGE) {
-            channelName = Constants.RabbitmqConstants.Im2MessageService;
-        } else if (commandType == CommandType.GROUP) {
-            channelName = Constants.RabbitmqConstants.Im2GroupService;
-        }
+        String channelName = getChannelName(command);
 
         try {
-            channel = RabbitmqFactory.getChannel(channelName);
+            Channel channel = RabbitmqFactory.getChannel(channelName);
 
             JSONObject o = (JSONObject) JSON.toJSON(message.getMessagePack());
             o.put("command", command);
@@ -50,20 +40,7 @@ public class MqMessageProducer {
 
     public static void sendMessage(Object message, MessageHeader header, Integer command){
 
-        String cmd = command.toString();
-        String commandSub = cmd.substring(0, 1);
-        CommandType commandType = CommandType.getCommandType(commandSub);
-
-        String channelName = "";
-        if (commandType == CommandType.MESSAGE) {
-            channelName = Constants.RabbitmqConstants.Im2MessageService;
-        } else if(commandType == CommandType.GROUP) {
-            channelName = Constants.RabbitmqConstants.Im2GroupService;
-        } else if(commandType == CommandType.FRIEND) {
-            channelName = Constants.RabbitmqConstants.Im2FriendshipService;
-        } else if(commandType == CommandType.USER) {
-            channelName = Constants.RabbitmqConstants.Im2UserService;
-        }
+        String channelName = getChannelName(command);
 
         try {
             Channel channel = RabbitmqFactory.getChannel(channelName);
@@ -79,6 +56,24 @@ public class MqMessageProducer {
         }catch (Exception e){
             log.error("Exception occurred when sending message: {}",e.getMessage());
         }
+    }
+
+    private static String getChannelName(Integer command) {
+
+        String commandSub = command.toString().substring(0, 1);
+        CommandType commandType = CommandType.getCommandType(commandSub);
+
+        String channelName = "";
+        if (commandType == CommandType.MESSAGE) {
+            channelName = Constants.RabbitmqConstants.Im2MessageService;
+        } else if(commandType == CommandType.GROUP) {
+            channelName = Constants.RabbitmqConstants.Im2GroupService;
+        } else if(commandType == CommandType.FRIEND) {
+            channelName = Constants.RabbitmqConstants.Im2FriendshipService;
+        } else if(commandType == CommandType.USER) {
+            channelName = Constants.RabbitmqConstants.Im2UserService;
+        }
+        return channelName;
     }
 
 }

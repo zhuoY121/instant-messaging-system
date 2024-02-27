@@ -5,6 +5,8 @@ import com.zhuo.im.common.model.RequestBase;
 import com.zhuo.im.common.model.SyncReq;
 import com.zhuo.im.service.friendship.model.req.*;
 
+import java.util.List;
+
 /**
  * @description:
  * @version: 1.0
@@ -36,5 +38,7 @@ public interface ImFriendshipService {
     public ResponseVO doAddFriendship(RequestBase requestBase, String fromId, FriendshipDto dto, Integer appId);
 
     public ResponseVO syncFriendshipList(SyncReq req);
+
+    public List<String> getAllActiveFriendship(String userId, Integer appId);
 
 }

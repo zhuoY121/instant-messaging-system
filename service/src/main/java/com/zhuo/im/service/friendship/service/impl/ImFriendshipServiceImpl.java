@@ -662,5 +662,10 @@ public class ImFriendshipServiceImpl implements ImFriendshipService {
         return ResponseVO.successResponse(resp);
     }
 
+    @Override
+    public List<String> getAllActiveFriendship(String userId, Integer appId) {
+        return imFriendshipMapper.getAllActiveFriendship(userId, appId);
+    }
+
 
 }
