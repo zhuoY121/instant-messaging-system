@@ -84,9 +84,8 @@ public class ImFriendshipController {
     }
 
     @RequestMapping("/syncFriendshipList")
-    public ResponseVO syncFriendshipList(@RequestBody @Validated SyncReq req, Integer appId, String identifier){
+    public ResponseVO syncFriendshipList(@RequestBody @Validated SyncReq req, Integer appId){
         req.setAppId(appId);
-        req.setOperator(identifier);
         return imFriendshipService.syncFriendshipList(req);
     }
 
