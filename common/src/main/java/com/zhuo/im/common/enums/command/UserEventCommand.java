@@ -13,6 +13,9 @@ public enum UserEventCommand implements Command {
     // User online status notification synchronization message.
     USER_ONLINE_STATUS_CHANGE_NOTIFICATION_SYNC(4005),
 
+    // User custom status notification synchronization message.
+    USER_CUSTOM_STATUS_CHANGE_NOTIFICATION_SYNC(4006),
+
     ;
 
     private int command;

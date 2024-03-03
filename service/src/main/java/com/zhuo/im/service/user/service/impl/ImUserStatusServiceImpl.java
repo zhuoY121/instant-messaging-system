@@ -1,25 +1,25 @@
 package com.zhuo.im.service.user.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.zhuo.im.codec.pack.user.UserCustomStatusChangeNotificationPack;
 import com.zhuo.im.codec.pack.user.UserStatusChangeNotificationPack;
 import com.zhuo.im.common.constant.Constants;
+import com.zhuo.im.common.enums.command.Command;
 import com.zhuo.im.common.enums.command.UserEventCommand;
 import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.common.model.UserSession;
 import com.zhuo.im.service.friendship.service.ImFriendshipService;
 import com.zhuo.im.service.user.model.UserStatusChangeNotificationContent;
+import com.zhuo.im.service.user.model.req.SetUserCustomStatusReq;
 import com.zhuo.im.service.user.model.req.SubscribeUserOnlineStatusReq;
 import com.zhuo.im.service.user.service.ImUserStatusService;
 import com.zhuo.im.service.utils.MessageProducer;
 import com.zhuo.im.service.utils.UserSessionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -52,7 +52,7 @@ public class ImUserStatusServiceImpl implements ImUserStatusService {
         userStatusChangeNotifyPack.setClient(userSession);
 
         // Send to other clients of your own
-        syncSender(userStatusChangeNotifyPack, content.getUserId(), content);
+        syncSender(userStatusChangeNotifyPack, content.getUserId(), UserEventCommand.USER_ONLINE_STATUS_CHANGE_NOTIFICATION_SYNC, content);
 
         // Synchronize to friends and people who have subscribed to you
         sendToTargets(userStatusChangeNotifyPack, content.getUserId(), content.getAppId());
@@ -79,9 +79,27 @@ public class ImUserStatusServiceImpl implements ImUserStatusService {
         }
     }
 
-    private void syncSender(Object pack, String userId, ClientInfo clientInfo){
-        messageProducer.sendToUserClientsExceptOne(userId,
-                UserEventCommand.USER_ONLINE_STATUS_CHANGE_NOTIFICATION_SYNC, pack, clientInfo);
+    @Override
+    public void setUserCustomStatus(SetUserCustomStatusReq req) {
+
+        UserCustomStatusChangeNotificationPack pack = new UserCustomStatusChangeNotificationPack();
+        pack.setCustomStatus(req.getCustomStatus());
+        pack.setCustomText(req.getCustomText());
+        pack.setUserId(req.getUserId());
+
+        stringRedisTemplate.opsForValue().set(req.getAppId() + ":" + Constants.RedisConstants.userCustomStatus
+                + ":" + req.getUserId(), JSONObject.toJSONString(pack));
+
+        // Send to other online clients
+        syncSender(pack, req.getUserId(), UserEventCommand.USER_CUSTOM_STATUS_CHANGE_NOTIFICATION_SYNC,
+                new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
+        // Synchronize to friends and people who have subscribed to you
+        sendToTargets(pack, req.getUserId(), req.getAppId());
+    }
+
+    private void syncSender(Object pack, String userId, Command command, ClientInfo clientInfo){
+        messageProducer.sendToUserClientsExceptOne(userId, command, pack, clientInfo);
     }
 
     private void sendToTargets(Object pack, String userId, Integer appId) {

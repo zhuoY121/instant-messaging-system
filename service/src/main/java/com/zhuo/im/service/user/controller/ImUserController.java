@@ -5,10 +5,7 @@ import com.zhuo.im.common.ResponseVO;
 import com.zhuo.im.common.route.RouteHandler;
 import com.zhuo.im.common.route.RouteInfo;
 import com.zhuo.im.common.utils.RouteInfoParseUtils;
-import com.zhuo.im.service.user.model.req.GetUserSequenceReq;
-import com.zhuo.im.service.user.model.req.ImportUserReq;
-import com.zhuo.im.service.user.model.req.LoginReq;
-import com.zhuo.im.service.user.model.req.SubscribeUserOnlineStatusReq;
+import com.zhuo.im.service.user.model.req.*;
 import com.zhuo.im.service.user.service.ImUserService;
 import com.zhuo.im.service.user.service.ImUserStatusService;
 import com.zhuo.im.service.utils.ZKit;
@@ -81,6 +78,15 @@ public class ImUserController {
         req.setAppId(appId);
         req.setOperator(identifier);
         imUserStatusService.subscribeUserOnlineStatus(req);
+        return ResponseVO.successResponse();
+    }
+
+    @RequestMapping("/setUserStatus")
+    public ResponseVO setUserCustomStatus(@RequestBody @Validated SetUserCustomStatusReq req,
+                                            Integer appId, String identifier) {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        imUserStatusService.setUserCustomStatus(req);
         return ResponseVO.successResponse();
     }
 

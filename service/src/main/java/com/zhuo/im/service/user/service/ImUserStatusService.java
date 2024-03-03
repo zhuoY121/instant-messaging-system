@@ -1,6 +1,7 @@
 package com.zhuo.im.service.user.service;
 
 import com.zhuo.im.service.user.model.UserStatusChangeNotificationContent;
+import com.zhuo.im.service.user.model.req.SetUserCustomStatusReq;
 import com.zhuo.im.service.user.model.req.SubscribeUserOnlineStatusReq;
 
 
@@ -14,4 +15,5 @@ public interface ImUserStatusService {
 
     void subscribeUserOnlineStatus(SubscribeUserOnlineStatusReq req);
 
+    void setUserCustomStatus(SetUserCustomStatusReq req);
 }

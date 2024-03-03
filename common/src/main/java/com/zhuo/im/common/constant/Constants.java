@@ -60,6 +60,11 @@ public class Constants {
          */
         public static final String subscribe = "subscribe";
 
+        /**
+         * User custom online status. Format: appId + :userCustomerStatus: + userId
+         */
+        public static final String userCustomStatus = "userCustomerStatus";
+
     }
 
     public static class RabbitmqConstants {
