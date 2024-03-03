@@ -1,5 +1,6 @@
 package com.zhuo.im.service.user.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.zhuo.im.codec.pack.user.UserCustomStatusChangeNotificationPack;
 import com.zhuo.im.codec.pack.user.UserStatusChangeNotificationPack;
@@ -10,19 +11,21 @@ import com.zhuo.im.common.model.ClientInfo;
 import com.zhuo.im.common.model.UserSession;
 import com.zhuo.im.service.friendship.service.ImFriendshipService;
 import com.zhuo.im.service.user.model.UserStatusChangeNotificationContent;
+import com.zhuo.im.service.user.model.req.PullFriendOnlineStatusReq;
+import com.zhuo.im.service.user.model.req.PullUserOnlineStatusReq;
 import com.zhuo.im.service.user.model.req.SetUserCustomStatusReq;
 import com.zhuo.im.service.user.model.req.SubscribeUserOnlineStatusReq;
+import com.zhuo.im.service.user.model.resp.UserOnlineStatusResp;
 import com.zhuo.im.service.user.service.ImUserStatusService;
 import com.zhuo.im.service.utils.MessageProducer;
 import com.zhuo.im.service.utils.UserSessionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @description:
@@ -98,6 +101,17 @@ public class ImUserStatusServiceImpl implements ImUserStatusService {
         sendToTargets(pack, req.getUserId(), req.getAppId());
     }
 
+    @Override
+    public Map<String, UserOnlineStatusResp> queryFriendsOnlineStatus(PullFriendOnlineStatusReq req) {
+        List<String> friendIdList = imFriendshipService.getAllActiveFriendship(req.getOperator(), req.getAppId());
+        return getUsersOnlineStatus(friendIdList, req.getAppId());
+    }
+
+    @Override
+    public Map<String, UserOnlineStatusResp> queryUsersOnlineStatus(PullUserOnlineStatusReq req) {
+        return getUsersOnlineStatus(req.getUserList(), req.getAppId());
+    }
+
     private void syncSender(Object pack, String userId, Command command, ClientInfo clientInfo){
         messageProducer.sendToUserClientsExceptOne(userId, command, pack, clientInfo);
     }
@@ -125,5 +139,24 @@ public class ImUserStatusServiceImpl implements ImUserStatusService {
         }
     }
 
+    private Map<String, UserOnlineStatusResp> getUsersOnlineStatus(List<String> userId, Integer appId){
+
+        Map<String, UserOnlineStatusResp> result = new HashMap<>(userId.size());
+        for (String uid : userId) {
+
+            UserOnlineStatusResp resp = new UserOnlineStatusResp();
+            List<UserSession> userSession = userSessionUtils.getUserSession(appId, uid);
+            resp.setSession(userSession);
+            String userKey = appId + ":" + Constants.RedisConstants.userCustomStatus + ":" + uid;
+            String s = stringRedisTemplate.opsForValue().get(userKey);
+            if (StringUtils.isNotBlank(s)) {
+                JSONObject parse = (JSONObject) JSON.parse(s);
+                resp.setCustomText(parse.getString("customText"));
+                resp.setCustomStatus(parse.getInteger("customStatus"));
+            }
+            result.put(uid, resp);
+        }
+        return result;
+    }
 
 }

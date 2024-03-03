@@ -90,4 +90,20 @@ public class ImUserController {
         return ResponseVO.successResponse();
     }
 
+    @RequestMapping("/queryFriendsOnlineStatus")
+    public ResponseVO queryFriendOnlineStatus(@RequestBody @Validated PullFriendOnlineStatusReq req,
+                                              Integer appId,String identifier) {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return ResponseVO.successResponse(imUserStatusService.queryFriendsOnlineStatus(req));
+    }
+
+    @RequestMapping("/queryUsersOnlineStatus")
+    public ResponseVO queryUserOnlineStatus(@RequestBody @Validated PullUserOnlineStatusReq req,
+                                            Integer appId,String identifier) {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return ResponseVO.successResponse(imUserStatusService.queryUsersOnlineStatus(req));
+    }
+
 }
