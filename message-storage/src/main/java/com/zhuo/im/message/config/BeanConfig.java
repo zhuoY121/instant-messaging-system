@@ -1,4 +1,4 @@
-package com.zhuo.message.config;
+package com.zhuo.im.message.config;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import org.springframework.context.annotation.Bean;

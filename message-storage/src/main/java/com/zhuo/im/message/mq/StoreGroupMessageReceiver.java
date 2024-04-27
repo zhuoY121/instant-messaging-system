@@ -1,12 +1,12 @@
-package com.zhuo.message.mq;
+package com.zhuo.im.message.mq;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
 import com.zhuo.im.common.constant.Constants;
-import com.zhuo.message.dao.ImMessageBodyEntity;
-import com.zhuo.message.model.DoStoreGroupMessageDto;
-import com.zhuo.message.service.StoreMessageService;
+import com.zhuo.im.message.dao.ImMessageBodyEntity;
+import com.zhuo.im.message.model.DoStoreGroupMessageDto;
+import com.zhuo.im.message.service.StoreMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;

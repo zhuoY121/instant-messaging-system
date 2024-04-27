@@ -1,4 +1,4 @@
-package com.zhuo.message.config;
+package com.zhuo.im.message.config;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;

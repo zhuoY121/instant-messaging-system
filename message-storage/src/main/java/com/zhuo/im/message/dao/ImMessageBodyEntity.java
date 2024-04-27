@@ -1,4 +1,4 @@
-package com.zhuo.message.dao;
+package com.zhuo.im.message.dao;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;

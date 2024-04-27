@@ -1,7 +1,7 @@
-package com.zhuo.message.dao.mapper;
+package com.zhuo.im.message.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zhuo.message.dao.ImMessageHistoryEntity;
+import com.zhuo.im.message.dao.ImMessageHistoryEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Collection;

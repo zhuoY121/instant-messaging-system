@@ -1,15 +1,15 @@
-package com.zhuo.message.service;
+package com.zhuo.im.message.service;
 
 import com.zhuo.im.common.model.message.GroupChatMessageContent;
 import com.zhuo.im.common.model.message.MessageContent;
-import com.zhuo.message.dao.ImGroupMessageHistoryEntity;
-import com.zhuo.message.dao.ImMessageBodyEntity;
-import com.zhuo.message.dao.ImMessageHistoryEntity;
-import com.zhuo.message.dao.mapper.ImGroupMessageHistoryMapper;
-import com.zhuo.message.dao.mapper.ImMessageBodyMapper;
-import com.zhuo.message.dao.mapper.ImMessageHistoryMapper;
-import com.zhuo.message.model.DoStoreGroupMessageDto;
-import com.zhuo.message.model.DoStoreP2PMessageDto;
+import com.zhuo.im.message.dao.ImGroupMessageHistoryEntity;
+import com.zhuo.im.message.dao.ImMessageBodyEntity;
+import com.zhuo.im.message.dao.ImMessageHistoryEntity;
+import com.zhuo.im.message.dao.mapper.ImGroupMessageHistoryMapper;
+import com.zhuo.im.message.dao.mapper.ImMessageBodyMapper;
+import com.zhuo.im.message.dao.mapper.ImMessageHistoryMapper;
+import com.zhuo.im.message.model.DoStoreGroupMessageDto;
+import com.zhuo.im.message.model.DoStoreP2PMessageDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

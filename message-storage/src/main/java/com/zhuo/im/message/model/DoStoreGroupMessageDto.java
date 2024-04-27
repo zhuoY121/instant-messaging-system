@@ -1,7 +1,7 @@
-package com.zhuo.message.model;
+package com.zhuo.im.message.model;
 
 import com.zhuo.im.common.model.message.GroupChatMessageContent;
-import com.zhuo.message.dao.ImMessageBodyEntity;
+import com.zhuo.im.message.dao.ImMessageBodyEntity;
 import lombok.Data;
 
 /**
