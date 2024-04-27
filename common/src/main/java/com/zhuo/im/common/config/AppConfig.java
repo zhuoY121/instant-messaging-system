@@ -60,4 +60,8 @@ public class AppConfig {
 
     private boolean interceptorEnabled;
 
+    private boolean sendMessageBeforeCallback;
+
+    private boolean sendMessageAfterCallback;
+
 }

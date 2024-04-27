@@ -1,8 +1,10 @@
 package com.zhuo.im.service.message.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.zhuo.im.codec.pack.message.ChatMessageAck;
 import com.zhuo.im.codec.pack.message.MessageReceiveServerAckPack;
 import com.zhuo.im.common.ResponseVO;
+import com.zhuo.im.common.config.AppConfig;
 import com.zhuo.im.common.constant.Constants;
 import com.zhuo.im.common.enums.ConversationTypeEnum;
 import com.zhuo.im.common.enums.command.MessageCommand;
@@ -12,6 +14,7 @@ import com.zhuo.im.common.model.message.OfflineMessageContent;
 import com.zhuo.im.service.message.model.req.SendMessageReq;
 import com.zhuo.im.service.message.model.resp.SendMessageResp;
 import com.zhuo.im.service.seq.RedisSeq;
+import com.zhuo.im.service.utils.CallbackService;
 import com.zhuo.im.service.utils.GenerateConversationId;
 import com.zhuo.im.service.utils.MessageProducer;
 import org.slf4j.Logger;
@@ -47,6 +50,12 @@ public class P2PMessageService {
 
     @Autowired
     RedisSeq redisSeq;
+
+    @Autowired
+    AppConfig appConfig;
+
+    @Autowired
+    CallbackService callbackService;
 
     private final ThreadPoolExecutor threadPoolExecutor;
 
@@ -94,6 +103,19 @@ public class P2PMessageService {
             return;
         }
 
+        // Before callback
+        ResponseVO responseVO = ResponseVO.successResponse();
+        if (appConfig.isSendMessageAfterCallback()) {
+            responseVO = callbackService.beforeCallback(messageContent.getAppId(), Constants.CallbackCommand.SendMessageBefore,
+                    JSONObject.toJSONString(messageContent));
+        }
+
+        // Callback Failed
+        if (!responseVO.isOk()) {
+            ack(messageContent, responseVO);
+            return;
+        }
+
         // Ensure the orderliness of the messages: Get the message seq to sort the messages.
         long seq = redisSeq.doGetSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.Message + ":" +
                 GenerateConversationId.generateP2PId(messageContent.getFromId(), messageContent.getToId()));
@@ -127,6 +149,13 @@ public class P2PMessageService {
                 // If all clients of the other party are offline, then it is necessary to indicate that this ACK was sent by the server.
                 receiveAck(messageContent);
             }
+
+            // After Callback
+            if (appConfig.isSendMessageAfterCallback()) {
+                callbackService.callback(messageContent.getAppId(), Constants.CallbackCommand.SendMessageAfter,
+                        JSONObject.toJSONString(messageContent));
+            }
+
         });
     }
 

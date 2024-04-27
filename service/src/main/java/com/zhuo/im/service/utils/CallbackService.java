@@ -26,14 +26,26 @@ public class CallbackService {
     @Autowired
     AppConfig appConfig;
 
+    @Autowired
+    ShareThreadPool shareThreadPool;
 
+
+    /**
+     * After callback. Use a shared thread pool to execute after the callback since we don't need to wait for the result.
+     * @param appId
+     * @param callbackCommand
+     * @param jsonBody
+     */
     public void callback(Integer appId, String callbackCommand, String jsonBody) {
-        try {
-            httpRequestUtils.doPost(appConfig.getCallbackUrl(), Object.class, builderUrlParams(appId, callbackCommand),
-                    jsonBody, null);
-        } catch (Exception e) {
-            logger.error("Callback {}: {}. Exception occurred: {}", callbackCommand, appId, e.getMessage());
-        }
+
+        shareThreadPool.submit(() -> {
+            try {
+                httpRequestUtils.doPost(appConfig.getCallbackUrl(), Object.class, builderUrlParams(appId, callbackCommand),
+                        jsonBody, null);
+            } catch (Exception e) {
+                logger.error("Callback {}: {}. Exception occurred: {}", callbackCommand, appId, e.getMessage());
+            }
+        });
     }
 
     public ResponseVO beforeCallback(Integer appId, String callbackCommand, String jsonBody){

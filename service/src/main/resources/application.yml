@@ -53,6 +53,10 @@ appConfig:
 
   interceptorEnabled: false # Control whether to enable the interceptor to facilitate testing
 
+  sendMessageBeforeCallback: false # Before sending a private chat message
+  sendMessageAfterCallback: false # After sending a private chat message
+
+
 httpclient:
   maxTotal: 100
   defaultMaxPerRoute: 50

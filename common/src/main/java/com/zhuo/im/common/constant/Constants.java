@@ -113,6 +113,11 @@ public class Constants {
         public static final String AddGroupMemberAfter = "group.member.add.after";
 
         public static final String DeleteGroupMemberAfter = "group.member.delete.after";
+
+        public static final String SendMessageBefore = "message.send.before";
+
+        public static final String SendMessageAfter = "message.send.after";
+
     }
 
 
