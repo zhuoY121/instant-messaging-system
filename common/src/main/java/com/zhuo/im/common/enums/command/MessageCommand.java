@@ -20,13 +20,13 @@ public enum MessageCommand implements Command {
     // Message read receipt, send to the original message sender. 1054
     MSG_READ_RECEIPT(0x41E),
 
-    // Message withdrawn 1050
+    // Message recall. 1050
     MSG_RECALL(0x41A),
 
-    // Message withdrawal notification 1052
+    // Message recall notification. 1052
     MSG_RECALL_NOTIFICATION(0x41C),
 
-    // Message withdrawal ACK 1051
+    // Message recall ACK. 1051
     MSG_RECALL_ACK(0x41B),
 
     ;
