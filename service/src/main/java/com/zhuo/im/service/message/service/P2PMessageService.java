@@ -15,7 +15,7 @@ import com.zhuo.im.service.message.model.req.SendMessageReq;
 import com.zhuo.im.service.message.model.resp.SendMessageResp;
 import com.zhuo.im.service.seq.RedisSeq;
 import com.zhuo.im.service.utils.CallbackService;
-import com.zhuo.im.service.utils.GenerateConversationId;
+import com.zhuo.im.service.utils.ConversationIdGenerator;
 import com.zhuo.im.service.utils.MessageProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +118,7 @@ public class P2PMessageService {
 
         // Ensure the orderliness of the messages: Get the message seq to sort the messages.
         long seq = redisSeq.doGetSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.Message + ":" +
-                GenerateConversationId.generateP2PId(messageContent.getFromId(), messageContent.getToId()));
+                ConversationIdGenerator.generateP2PId(messageContent.getFromId(), messageContent.getToId()));
         messageContent.setMessageSequence(seq);
 
 

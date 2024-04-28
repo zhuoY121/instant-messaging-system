@@ -20,7 +20,7 @@ import com.zhuo.im.message.dao.ImMessageBodyEntity;
 import com.zhuo.im.service.conversation.service.ConversationService;
 import com.zhuo.im.service.group.service.ImGroupMemberService;
 import com.zhuo.im.service.seq.RedisSeq;
-import com.zhuo.im.service.utils.GenerateConversationId;
+import com.zhuo.im.service.utils.ConversationIdGenerator;
 import com.zhuo.im.service.utils.GroupMessageProducer;
 import com.zhuo.im.service.utils.MessageProducer;
 import com.zhuo.im.message.dao.mapper.ImMessageBodyMapper;
@@ -204,7 +204,7 @@ public class MessageSyncService {
             offlineMessageContent.setMessageBody(body.getMessageBody());
 
             long seq = redisSeq.doGetSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.Message + ":" +
-                    GenerateConversationId.generateP2PId(messageContent.getFromId(), messageContent.getToId()));
+                    ConversationIdGenerator.generateP2PId(messageContent.getFromId(), messageContent.getToId()));
             offlineMessageContent.setMessageSequence(seq);
 
             long messageKey = SnowflakeIdWorker.nextId();
@@ -223,7 +223,7 @@ public class MessageSyncService {
         } else {
             List<String> groupMemberIdList = imGroupMemberService.getGroupMemberIdList(messageContent.getToId(), messageContent.getAppId());
             long seq = redisSeq.doGetSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.Message + ":" +
-                    GenerateConversationId.generateP2PId(messageContent.getFromId(), messageContent.getToId()));
+                    ConversationIdGenerator.generateP2PId(messageContent.getFromId(), messageContent.getToId()));
 
             // Send ack to the sender
             recallAck(pack, ResponseVO.successResponse(), messageContent);

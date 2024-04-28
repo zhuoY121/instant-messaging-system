@@ -1,7 +1,7 @@
 package com.zhuo.im.service.utils;
 
 
-public class GenerateConversationId {
+public class ConversationIdGenerator {
 
     /**
      * @description Generate the same string given fromId and toId
