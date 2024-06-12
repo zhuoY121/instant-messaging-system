@@ -7,7 +7,6 @@ import com.zhuo.im.common.enums.ConversationTypeEnum;
 import com.zhuo.im.common.enums.DelFlagEnum;
 import com.zhuo.im.common.model.message.*;
 import com.zhuo.im.service.conversation.service.ConversationService;
-import com.zhuo.im.service.group.dao.mapper.ImGroupMessageHistoryMapper;
 import com.zhuo.im.service.utils.SnowflakeIdWorker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -29,9 +28,6 @@ public class MessageStoreService {
 
     @Autowired
     SnowflakeIdWorker snowflakeIdWorker;
-
-    @Autowired
-    ImGroupMessageHistoryMapper imGroupMessageHistoryMapper;
 
     @Autowired
     RabbitTemplate rabbitTemplate;
