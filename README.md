@@ -43,6 +43,8 @@ ZooKeeper
 - Set up
   - (Optional) In ```/opt/homebrew/opt/zookeeper/share/zookeeper/examples/zoo.cfg```
     - Change dataDir: ```dataDir=<target-folder>```
+- Check info:
+  - ```brew info zookeeper```
 - Run
   - Start the ZooKeeper service:
     - ```brew services start zookeeper```
@@ -54,9 +56,13 @@ Redis
   - Another Redis Desktop Manager
 - Install:
   - ```brew install redis```
+- Check info:
+  - ```brew info redis```
 - Run:
-  - start: ```brew services start redis```
-  - stop: ```brew services stop redis```
+  - start: 
+    - ```brew services start redis```
+  - stop: 
+    - ```brew services stop redis```
 
 RabbitMQ
 - Web:
@@ -65,9 +71,31 @@ RabbitMQ
     - password: guest
 - Install
   - ```brew install rabbitmq```
-  - Check info: ```brew info rabbitmq```
+  - Check info: 
+    - ```brew info rabbitmq```
 - Run:
-  - start: ```brew services start rabbitmq```
-  - stop: ```brew services stop rabbitmq```
+  - start: 
+    - ```brew services start rabbitmq```
+  - stop: 
+    - ```brew services stop rabbitmq```
+
+
+### Run with the script
+
+Start tools:
+```bash
+# Add the permission
+chmod +x scripts/bin/start-tools.sh
+# Start tools
+scripts/bin/start-tools.sh
+```
+
+Stop tools:
+```bash
+# Add the permission
+chmod +x scripts/bin/stop-tools.sh
+# Stop tools
+scripts/bin/stop-tools.sh
+```
 
 
